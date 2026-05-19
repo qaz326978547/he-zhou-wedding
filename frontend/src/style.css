@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-wedding-cream text-wedding-charcoal font-body;
+  }
+
+  h1, h2, h3 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .gold-divider {
+    @apply w-16 h-px bg-wedding-gold mx-auto my-6;
+  }
+
+  /* Film strip frame: double-border with cream matte, evokes a photo negative holder */
+  .film-strip {
+    border: 3px solid theme('colors.wedding-stone');
+    box-shadow:
+      0 0 0 5px theme('colors.wedding-cream'),
+      0 0 0 7px theme('colors.wedding-stone / 60%'),
+      0 4px 24px rgba(139, 134, 130, 0.15);
+  }
+}
