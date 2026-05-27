@@ -142,6 +142,6 @@ router.beforeEach((to, _from, next) => {
 - 列表上方：統計摘要（出席筆數、不出席筆數、總出席人數）+ 搜尋輸入框（姓名或電話即時篩選）
 - **Inline 編輯**（桌機）：點「修改」→ 該列各欄位變 `<input>`，提供「儲存」與「取消」按鈕；手機卡片點「修改」→ 展開 inline 欄位於卡片內
 - 刪除前顯示 `window.confirm()` 確認
-- 新增按鈕開啟表單（獨立區塊或展開於列表頂部，欄位與 RsvpSection 相同）
+- 「新增」按鈕開啟 Modal 彈窗（含完整表單欄位）；送出成功後自動關閉 Modal，新資料插入列表頂端；點擊 Modal 外部或「取消」可關閉
 - 操作成功後重新呼叫 `GET /api/admin/rsvp` 更新列表（含統計重算）
 - 登出按鈕：清除 `localStorage.admin_token` → `router.push('/admin/login')`
