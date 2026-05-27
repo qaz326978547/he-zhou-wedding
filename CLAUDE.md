@@ -2,11 +2,11 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan at:
-`specs/001-wedding-site-v1/plan.md`
+`specs/002-admin-dashboard/plan.md`
 
-For local development setup, see: `specs/001-wedding-site-v1/quickstart.md`
-For API contracts, see: `specs/001-wedding-site-v1/contracts/api.md`
-For data model, see: `specs/001-wedding-site-v1/data-model.md`
+For local development setup, see: `specs/002-admin-dashboard/quickstart.md`
+For API contracts, see: `specs/002-admin-dashboard/contracts/api.md`
+For data model, see: `specs/002-admin-dashboard/data-model.md`
 
 <!-- SPEC KIT END -->
 
