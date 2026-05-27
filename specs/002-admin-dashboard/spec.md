@@ -9,7 +9,11 @@
 
 ## Clarifications
 
-（待 /speckit-clarify 補充）
+### Session 2026-05-28
+
+- Q: 修改 RSVP 時編輯介面樣式為何？ → A: Inline 直接在表格列上編輯（每個欄位變 input，儲存後恢復顯示文字）
+- Q: 後台列表頁是否顯示統計摘要？ → A: 顯示；包含出席筆數、不克出席筆數、總出席人數（guestCount 加總）
+- Q: 列表是否需要搜尋 / 篩選功能？ → A: 支援前端即時搜尋（依姓名或電話關鍵字即時篩選，不需額外 API）
 
 ---
 
@@ -53,7 +57,7 @@
 
 1. **Given** 主辦人已登入，**When** 進入後台首頁，**Then** MUST 顯示所有 RSVP 提交紀錄，每筆資料包含：編號、姓名、電話、出席狀態、出席人數、賓桌歸屬、關係類型、飲食偏好、備註、提交時間（UTC+8）、通知信發送狀態。
 2. **Given** 主辦人在列表頁，**When** 點擊「新增」，**Then** MUST 顯示新增表單，填寫並送出後，新資料 MUST 出現在列表中。
-3. **Given** 主辦人在某筆 RSVP 旁點擊「修改」，**When** 完成編輯並儲存，**Then** 列表中該筆資料 MUST 即時更新。
+3. **Given** 主辦人在某筆 RSVP 旁點擊「修改」，**When** 該列進入 inline 編輯模式（各欄位變為 input），主辦人修改後點擊「儲存」，**Then** 列表中該筆資料 MUST 即時更新並恢復為文字顯示。
 4. **Given** 主辦人點擊某筆 RSVP 的「刪除」，**When** 確認刪除，**Then** 該筆資料 MUST 從列表與資料庫中移除。
 5. **Given** RSVP 資料超過 20 筆，**When** 主辦人瀏覽列表，**Then** MUST 支援分頁或全量顯示（v1 預計最多 200 筆，全量顯示即可）。
 
@@ -90,14 +94,23 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 #### FR-A004 登出
 主辦人點擊登出後，MUST 清除前端 token 並導向 `/admin/login`。
 
-#### FR-A005 RSVP 列表
-後台首頁 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes、createdAt（UTC+8）、notificationEmailSent。
+#### FR-A005 RSVP 列表與統計摘要
+後台首頁 MUST 在列表上方顯示統計摘要卡片，包含：
+- 出席筆數（attending=true 的 RSVP 數量）
+- 不克出席筆數（attending=false 的 RSVP 數量）
+- 總出席人數（所有 guestCount 加總）
+
+統計數字由前端從已載入的列表資料即時計算（不需額外 API）。
+
+列表上方 MUST 提供即時搜尋輸入框，依姓名或電話號碼關鍵字即時篩選列表（前端 computed，不呼叫額外 API）；無符合結果時顯示「找不到符合的紀錄」。
+
+列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes、createdAt（UTC+8）、notificationEmailSent。
 
 #### FR-A006 新增 RSVP
 主辦人 MUST 可新增 RSVP 資料，欄位與前台 RSVP 表單一致（name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；後端 MUST 執行相同的資料驗證規則（電話格式、guestCount 範圍等）。
 
 #### FR-A007 修改 RSVP
-主辦人 MUST 可修改任一筆 RSVP 的任何欄位；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
+主辦人 MUST 可修改任一筆 RSVP 的任何欄位；點擊「修改」後該列進入 inline 編輯模式，各欄位直接在表格列上變為可編輯 input；點擊「儲存」送出後恢復文字顯示；點擊「取消」放棄修改回復原始內容；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
 
 #### FR-A008 刪除 RSVP
 主辦人 MUST 可刪除任一筆 RSVP；刪除前 MUST 顯示確認對話框，確認後資料從資料庫永久移除。
