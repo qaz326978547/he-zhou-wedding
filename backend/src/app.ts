@@ -6,6 +6,7 @@ import apiRouter from './routes/rsvp'
 const app = express()
 const PORT = process.env.PORT ?? 3000
 
+app.set('trust proxy', 1)
 app.use(corsMiddleware)
 app.use(express.json())
 app.use('/api', apiRouter)
