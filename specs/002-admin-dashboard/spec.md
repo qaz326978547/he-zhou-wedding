@@ -14,6 +14,7 @@
 - Q: 修改 RSVP 時編輯介面樣式為何？ → A: Inline 直接在表格列上編輯（每個欄位變 input，儲存後恢復顯示文字）
 - Q: 後台列表頁是否顯示統計摘要？ → A: 顯示；包含出席筆數、不克出席筆數、總出席人數（guestCount 加總）
 - Q: 列表是否需要搜尋 / 篩選功能？ → A: 支援前端即時搜尋（依姓名或電話關鍵字即時篩選，不需額外 API）
+- Q: 後台是否需要支援行動裝置？ → A: 是；以手機版順暢度為主（Mobile-First），PC 版一目瞭然；手機用卡片佈局，桌機用完整表格
 
 ---
 
@@ -136,6 +137,7 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 - **SC-A002**：未攜帶有效 token 的後台 API 請求 100% 回傳 401，不洩漏資料
 - **SC-A003**：新增、修改、刪除操作完成後，列表 MUST 在不需手動重整的情況下即時反映變更
 - **SC-A004**：後台功能對前台婚禮網站（`https://hezhouwedding.com`）零影響，前台所有功能正常運作
+- **SC-A005**：後台在 375px（iPhone SE）至 1440px（桌機）寬度範圍內完整可用；手機版卡片佈局，所有操作按鈕觸控區域 ≥ 44×44px；桌機版表格一覽所有欄位
 
 ---
 
@@ -143,7 +145,7 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 
 - 帳號密碼以明文儲存於環境變數（`ADMIN_CREDENTIALS`），v1 可接受；未來版本再改用 bcrypt hash
 - v1 不需要操作紀錄（audit log）或分角色權限；兩位主辦人權限完全相同
-- 後台不需要 RWD/行動裝置支援；桌機瀏覽器為主要使用情境
+- 後台採 Mobile-First 設計，手機版（< 768px）以卡片佈局呈現每筆 RSVP，桌機版（≥ 768px）以完整表格呈現
 - Vue Router 的 `/admin` 路由在前台 SPA 中以 navigation guard 保護；後端負責 API 層保護
 - JWT secret 儲存於後端環境變數 `JWT_SECRET`；v1 使用對稱式簽名（HS256）
 - 後台不發送電子郵件通知（僅資料庫操作）
@@ -155,7 +157,6 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 
 - 後台角色權限分級（兩位主辦人權限相同）
 - 操作紀錄（audit log）
-- 後台行動裝置支援
 - 批次刪除或匯出 CSV
 - 忘記密碼 / 修改密碼功能
 - 後台黑暗模式

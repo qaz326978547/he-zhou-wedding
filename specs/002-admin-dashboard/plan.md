@@ -136,9 +136,12 @@ router.beforeEach((to, _from, next) => {
 ### AdminDashboard.vue 功能
 
 - 初始化時呼叫 `GET /api/admin/rsvp` 載入全部列表
-- 以 HTML table 顯示，欄位依 data-model.md 規格
-- 每列提供「修改」（inline edit 或 modal）與「刪除」按鈕
+- **Mobile-First RWD 佈局**：
+  - 手機（< 768px）：每筆 RSVP 以卡片呈現（姓名、電話、出席狀態、人數、提交時間），卡片底部放修改 / 刪除按鈕（≥ 44×44px 觸控區域）
+  - 桌機（≥ 768px）：完整 `<table>` 顯示所有欄位，每列 inline 編輯
+- 列表上方：統計摘要（出席筆數、不出席筆數、總出席人數）+ 搜尋輸入框（姓名或電話即時篩選）
+- **Inline 編輯**（桌機）：點「修改」→ 該列各欄位變 `<input>`，提供「儲存」與「取消」按鈕；手機卡片點「修改」→ 展開 inline 欄位於卡片內
 - 刪除前顯示 `window.confirm()` 確認
-- 新增按鈕開啟表單（與 RsvpSection 欄位相同）
-- 操作成功後重新呼叫 `GET /api/admin/rsvp` 更新列表
+- 新增按鈕開啟表單（獨立區塊或展開於列表頂部，欄位與 RsvpSection 相同）
+- 操作成功後重新呼叫 `GET /api/admin/rsvp` 更新列表（含統計重算）
 - 登出按鈕：清除 `localStorage.admin_token` → `router.push('/admin/login')`
