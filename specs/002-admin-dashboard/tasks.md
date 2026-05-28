@@ -20,6 +20,7 @@
 - [x] T001 在 `backend/` 安裝新相依套件：`npm install jsonwebtoken && npm install --save-dev @types/jsonwebtoken`
 - [x] T002 [P] 在 `frontend/` 安裝 Vue Router：`npm install vue-router@4`
 - [x] T003 [P] 更新 `backend/.env.example`，新增 `JWT_SECRET=your-random-secret-at-least-32-chars` 與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}` 兩個欄位
+- [x] T003a [P] 更新 `backend/prisma/schema.prisma`，將 `guestCount Int @default(0)` 改為 `guestCount Int?`（nullable），執行 migration `20260528160300_allow_nullable_guest_count`；後台 admin 路由允許 guestCount 為 null，公開前台驗證規則不變（C2 追蹤補充）
 
 **Checkpoint**: `backend/node_modules/jsonwebtoken` 與 `frontend/node_modules/vue-router` 均存在；`.env.example` 包含新欄位
 
@@ -34,7 +35,7 @@
 - [x] T004 實作 JWT 驗證 middleware 於 `backend/src/middleware/adminAuth.ts`（讀取 `Authorization: Bearer <token>` header；以 `process.env.JWT_SECRET` 驗證 HS256 JWT；token 無效或過期時回傳 `{ error: 'UNAUTHORIZED', message: '請先登入' }` HTTP 401；驗證通過則呼叫 `next()`）
 - [x] T005 [P] 建立 Vue Router 於 `frontend/src/router/index.ts`（`createWebHistory()`；三條路由：`/`→`App.vue` 現有根元件、`/admin`→`AdminDashboard.vue`、`/admin/login`→`AdminLogin.vue`；navigation guard：`/admin/*` 路由在 `localStorage.admin_token` 不存在時自動導向 `/admin/login`）
 - [x] T006 [P] 建立 adminApi Axios 實例於 `frontend/src/services/adminApi.ts`（`baseURL: import.meta.env.VITE_API_BASE_URL`；request interceptor：自動附加 `Authorization: Bearer <token>`；response interceptor：收到 401 時清除 `localStorage.admin_token` 並 `window.location.href = '/admin/login'`）
-- [x] T007 更新 `frontend/src/main.ts`，在 `app.mount('#app')` 前加入 `import router from './router'` 與 `app.use(router)`（T007 依賴 T005 完成）
+- [x] T007 建立 `frontend/src/Root.vue`（僅包含 `<RouterView />`，作為 SPA 的 Router outlet），並更新 `frontend/src/main.ts`：掛載目標從 `App.vue` 改為 `Root.vue`，加入 `import router from './router'` 與 `app.use(router)`；`App.vue` 改為路由 `/` 的頁面元件（C3 追蹤補充，T007 依賴 T005 完成）
 
 **Checkpoint**: 後端可啟動；前端可啟動，訪問 `http://localhost:5173/admin` 被導向 `/admin/login`（空白頁，無元件錯誤）
 
@@ -62,7 +63,7 @@
 **Independent Test**: 登入後台，確認列表顯示全部 RSVP；統計摘要出席人數正確；搜尋輸入姓名 / 電話可即時篩選；點「新增」開啟 Modal 填寫後送出，確認新資料出現；點「修改」進入 inline 編輯，儲存確認更新；點「刪除」確認後消失；手機（375px）以卡片呈現，桌機（1440px）以表格呈現。
 
 - [x] T012 [P] [US2] 建立 Zod partial update schema 於 `backend/src/validation/adminRsvpSchema.ts`（基於 `rsvpSchema` 的 Partial 版本供 PUT 使用；所有欄位選填；保留電話格式、guestCount 範圍、relationshipType 依賴 relationshipSide 的驗證邏輯）
-- [x] T013 [P] [US2] 建立新增 RSVP Modal 元件於 `frontend/src/components/admin/RsvpModal.vue`（props：`visible: boolean`、`emit: close / saved`；表單欄位與前台 RsvpSection 相同（name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；送出呼叫 `adminApi.post('/api/admin/rsvp', payload)`；成功 emit `saved(newRecord)` 並由父元件關閉 Modal；失敗在 Modal 內顯示錯誤訊息；點擊 Modal 外部或「取消」emit `close`；支援手機版全寬顯示）
+- [x] T013 [P] [US2] 建立新增 RSVP Modal 元件於 `frontend/src/components/admin/RsvpModal.vue`（props：`visible: boolean`、`emit: close / saved`；表單欄位：name、phone、guestCount（可留空=null，顯示「人數待確認」）、relationshipSide、relationshipType、dietaryPreference、notes；**attending 欄位不顯示，送出時固定預設 true**；送出呼叫 `adminApi.post('/api/admin/rsvp', payload)`；成功 emit `saved(newRecord)` 並由父元件關閉 Modal；失敗在 Modal 內顯示錯誤訊息；點擊 Modal 外部或「取消」emit `close`；支援手機版全寬顯示）
 - [x] T014 [US2] 補全 admin RSVP controller 函式於 `backend/src/controllers/adminController.ts`（T014 依賴 T012 完成）：
   - `listRsvp`：`prisma.rSVPSubmission.findMany({ orderBy: { createdAt: 'desc' } })` → `{ data: [...] }`
   - `createRsvp`：以 `rsvpSchema`（完整驗證）解析 body → `prisma.rSVPSubmission.create()` → 201；P2002 → 409
@@ -70,16 +71,17 @@
   - `deleteRsvp`：`prisma.rSVPSubmission.delete({ where: { id } })`；id 不存在 → 404 → 成功回傳 204
 - [x] T015 [US2] 更新 `backend/src/routes/admin.ts`，將 Phase 3 的 stub 函式替換為 T014 實作的正式 controller 函式（`listRsvp`、`createRsvp`、`updateRsvp`、`deleteRsvp`）（T015 依賴 T014 完成）
 - [x] T016 [US2] 建立 `frontend/src/views/admin/AdminDashboard.vue`（T016 依賴 T013 完成）：
-  - **資料載入**：`onMounted` 呼叫 `adminApi.get('/api/admin/rsvp')`，結果存入 `rsvpList` reactive ref
-  - **統計摘要**：computed 計算出席筆數、不克出席筆數、總出席人數（guestCount 加總），顯示於列表上方三格卡片
+  - **資料載入**：`onMounted` 呼叫 `adminApi.get('/api/admin/rsvp')`，結果存入 `rsvpList` reactive ref；API 失敗時設 `loadError=true`，顯示「資料載入失敗，請重新整理頁面」錯誤 banner，搜尋框與「新增 RSVP」按鈕仍保持可用（C4 追蹤補充）
+  - **統計摘要**：computed 計算**總回覆筆數**（所有記錄數）與**總出席人數**（guestCount 加總，null 視為 0），顯示於列表上方兩格卡片；**不顯示出席筆數 / 不克出席筆數**（attending 欄位隱藏）
   - **即時搜尋**：搜尋 input，computed `filteredList` 依姓名或電話 keyword 篩選；無結果顯示「找不到符合的紀錄」
   - **RWD 佈局**：
-    - 手機（Tailwind `md:hidden`）：每筆 RSVP 以卡片呈現（姓名、電話、出席狀態、人數、提交時間 UTC+8）；卡片底部「修改」「刪除」按鈕，觸控區域 ≥ 44px
+    - 手機（Tailwind `md:hidden`）：每筆 RSVP 以卡片呈現（姓名、電話、人數（null 顯示「--」）、賓桌歸屬、關係類型、飲食偏好、備註、提交時間 UTC+8、通知信狀態）；**不顯示出席狀態**；卡片底部「修改」「刪除」按鈕，觸控區域 ≥ 44px
     - 桌機（Tailwind `hidden md:table`）：完整 `<table>`，所有欄位一覽
   - **Inline 編輯**：點「修改」→ 該列（或卡片）各欄位切換為 `<input>`/`<select>`，顯示「儲存」「取消」；「儲存」呼叫 `adminApi.put('/api/admin/rsvp/:id', payload)`，成功更新 `rsvpList` 對應項目；「取消」回復原始值；操作中按鈕 disabled
   - **刪除**：點「刪除」→ `window.confirm('確定刪除？')` → 確認後呼叫 `adminApi.delete('/api/admin/rsvp/:id')`，成功從 `rsvpList` 移除
   - **新增 Modal**：「新增 RSVP」按鈕控制 `showModal: boolean`；`<RsvpModal>` 接收 `visible` prop；收到 `saved` event 時將新資料插入 `rsvpList` 頂端並重算統計；收到 `close` 時關閉 Modal
   - **登出**：「登出」按鈕清除 `localStorage.admin_token` → `router.push('/admin/login')`
+  - **CSV 匯出**（FR-A011）：「匯出 CSV」按鈕以 `rsvpList`（完整列表，非 filteredList）為資料源，純前端產生；UTF-8 BOM 確保 Excel 正確顯示中文；欄位：編號、姓名、電話、出席人數（null→空）、賓桌歸屬、關係類型、飲食偏好、備註、提交時間 UTC+8、通知信已發送；**不含出席狀態欄位**；檔案末段附統計摘要（總回覆筆數、總出席人數）；檔名格式 `RSVP_YYYYMMDD.csv`（C1 追蹤補充）
 
 **Checkpoint**: US2 Independent Test 完整通過；前台 `https://hezhouwedding.com` 功能不受影響（SC-A004）
 
@@ -91,7 +93,7 @@
 
 - [ ] T017 在 Zeabur Dashboard → backend 服務 → Variables 新增 `JWT_SECRET`（≥ 32 字元隨機字串，以 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` 產生）與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}`，並確認服務重新部署成功
 - [ ] T018 [P] 確認 Zeabur frontend 服務 SPA fallback 設定：直接訪問 `https://hezhouwedding.com/admin` 不出現 404（若出現，至 Zeabur Dashboard → frontend → Settings 開啟 SPA mode）
-- [ ] T019 依照 `specs/002-admin-dashboard/quickstart.md` 執行本地驗證清單（`POST /api/admin/login` 正確帳密 → 200；錯誤帳密 → 401；無 token 訪問 `/api/admin/rsvp` → 401；CRUD 全流程通過；前台不受影響）
+- [x] T019 依照 `specs/002-admin-dashboard/quickstart.md` 執行本地驗證清單（`POST /api/admin/login` 正確帳密 → 200；錯誤帳密 → 401；無 token 訪問 `/api/admin/rsvp` → 401；CRUD 全流程通過；前台不受影響）
 - [ ] T020 [P] 手動測試生產環境 `https://hezhouwedding.com/admin` 完整流程：登入 → 列表顯示 → 統計摘要 → 搜尋 → 新增（Modal）→ 修改（Inline）→ 刪除；分別在手機（375px）與桌機（1440px）確認 RWD 佈局正確
 
 ---

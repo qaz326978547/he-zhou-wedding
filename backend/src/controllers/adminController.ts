@@ -1,8 +1,7 @@
 import { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
-import { rsvpSchema } from '../validation/rsvpSchema'
-import { adminRsvpSchema } from '../validation/adminRsvpSchema'
+import { adminCreateRsvpSchema, adminRsvpSchema } from '../validation/adminRsvpSchema'
 
 const prisma = new PrismaClient()
 
@@ -25,12 +24,12 @@ export async function listRsvp(_req: Request, res: Response) {
 }
 
 export async function createRsvp(req: Request, res: Response) {
-  const result = rsvpSchema.safeParse(req.body)
+  const result = adminCreateRsvpSchema.safeParse(req.body)
   if (!result.success) {
     return res.status(400).json({ error: 'VALIDATION_ERROR', details: result.error.errors })
   }
   try {
-    const record = await prisma.rSVPSubmission.create({ data: result.data })
+    const record = await prisma.rSVPSubmission.create({ data: { attending: true, ...result.data } })
     return res.status(201).json({ data: record })
   } catch (err: any) {
     if (err.code === 'P2002') {
