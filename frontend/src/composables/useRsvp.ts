@@ -12,6 +12,7 @@ export function useRsvp() {
     adultCount: 1,
     childCount: 0,
     needsHighchair: null as boolean | null,
+    highchairCount: 1,
     relationshipSide: '' as '' | 'groom' | 'bride',
     relationshipType: '' as '' | 'relative' | 'friend',
     dietaryPreference: 'regular' as 'regular' | 'vegetarian',
@@ -108,7 +109,10 @@ export function useRsvp() {
     if (form.attending) {
       payload.adultCount = form.adultCount
       payload.childCount = form.childCount
-      if (form.childCount > 0) payload.needsHighchair = form.needsHighchair
+      if (form.childCount > 0) {
+        payload.needsHighchair = form.needsHighchair
+        if (form.needsHighchair === true) payload.highchairCount = form.highchairCount
+      }
     }
     if (form.relationshipSide) payload.relationshipSide = form.relationshipSide
     if (form.relationshipSide && form.relationshipType) payload.relationshipType = form.relationshipType

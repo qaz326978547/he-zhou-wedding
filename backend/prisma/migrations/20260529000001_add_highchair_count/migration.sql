@@ -1,0 +1,1 @@
+ALTER TABLE "RSVPSubmission" ADD COLUMN IF NOT EXISTS "highchairCount" INTEGER;

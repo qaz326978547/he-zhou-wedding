@@ -14,6 +14,7 @@ export const rsvpSchema = z
     adultCount: z.number().int().min(1).max(10).nullable().optional(),
     childCount: z.number().int().min(0).max(10).nullable().optional(),
     needsHighchair: z.boolean().nullable().optional(),
+    highchairCount: z.number().int().min(1).max(10).nullable().optional(),
     relationshipSide: SIDE.optional(),
     relationshipType: REL_TYPE.optional(),
     dietaryPreference: DIETARY.default('regular'),

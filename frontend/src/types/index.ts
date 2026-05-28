@@ -5,6 +5,7 @@ export interface RsvpPayload {
   adultCount?: number | null
   childCount?: number | null
   needsHighchair?: boolean | null
+  highchairCount?: number | null
   relationshipSide?: 'groom' | 'bride'
   relationshipType?: 'relative' | 'friend'
   dietaryPreference?: 'regular' | 'vegetarian'

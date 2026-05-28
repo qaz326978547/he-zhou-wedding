@@ -35,6 +35,8 @@ export async function submitRsvp(req: Request, res: Response, next: NextFunction
         adultCount: parsed.data.attending ? (parsed.data.adultCount ?? null) : null,
         childCount: parsed.data.attending ? (parsed.data.childCount ?? null) : null,
         needsHighchair: parsed.data.attending && parsed.data.childCount ? (parsed.data.needsHighchair ?? null) : null,
+        highchairCount: parsed.data.attending && parsed.data.childCount && parsed.data.needsHighchair
+          ? (parsed.data.highchairCount ?? null) : null,
         relationshipSide: parsed.data.relationshipSide ?? null,
         relationshipType: parsed.data.relationshipType ?? null,
         dietaryPreference: parsed.data.dietaryPreference ?? 'regular',

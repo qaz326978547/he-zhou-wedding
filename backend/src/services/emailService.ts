@@ -42,7 +42,7 @@ export async function sendAdminNotification(
       <tr><td>出席狀態</td><td>${data.attending ? '出席' : '不克出席'}</td></tr>
       <tr><td>大人人數</td><td>${data.adultCount ?? '—'}</td></tr>
       <tr><td>小孩人數</td><td>${data.childCount ?? '—'}</td></tr>
-      <tr><td>兒童椅</td><td>${data.needsHighchair === true ? '需要' : data.needsHighchair === false ? '不需要' : '—'}</td></tr>
+      <tr><td>兒童椅</td><td>${data.needsHighchair === true ? `需要（${(data as any).highchairCount ?? 1} 張）` : data.needsHighchair === false ? '不需要' : '—'}</td></tr>
       <tr><td>賓桌歸屬</td><td>${data.relationshipSide ? SIDE_LABEL[data.relationshipSide] : '未填寫'}</td></tr>
       <tr><td>關係類型</td><td>${data.relationshipType ? REL_LABEL[data.relationshipType] : '未填寫'}</td></tr>
       <tr><td>飲食偏好</td><td>${DIETARY_LABEL[data.dietaryPreference ?? 'regular']}</td></tr>

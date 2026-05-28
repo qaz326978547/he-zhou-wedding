@@ -15,6 +15,7 @@ model RSVPSubmission {
   adultCount              Int?
   childCount              Int?
   needsHighchair          Boolean?
+  highchairCount          Int?
   relationshipSide        String?
   relationshipType        String?
   dietaryPreference       String    @default("regular")

@@ -71,6 +71,12 @@
                   <option :value="false">不需要</option>
                 </select>
               </div>
+              <div v-if="editForm.needsHighchair === true">
+                <label class="text-xs text-gray-400">兒童椅幾張</label>
+                <select v-model="editForm.highchairCount" class="edit-input">
+                  <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+                </select>
+              </div>
               <div>
                 <label class="text-xs text-gray-400">賓桌</label>
                 <select v-model="editForm.relationshipSide" class="edit-input">
@@ -125,7 +131,7 @@
             <div class="text-sm text-gray-500 space-y-0.5">
               <div>電話：{{ item.phone }}</div>
               <div>大人：{{ item.adultCount ?? '--' }} 位　小孩：{{ item.childCount ?? '--' }} 位</div>
-              <div v-if="item.childCount > 0">兒童椅：{{ item.needsHighchair === true ? '需要' : item.needsHighchair === false ? '不需要' : '--' }}</div>
+              <div v-if="item.childCount > 0">兒童椅：{{ item.needsHighchair === true ? `需要 ${item.highchairCount ?? 1} 張` : item.needsHighchair === false ? '不需要' : '--' }}</div>
               <div v-if="item.relationshipSide">
                 賓桌：{{ item.relationshipSide === 'groom' ? '新郎方' : '新娘方' }}
                 <template v-if="item.relationshipType">· {{ item.relationshipType === 'relative' ? '親戚' : '朋友' }}</template>
@@ -189,6 +195,9 @@
                     <option :value="true">需要</option>
                     <option :value="false">不需要</option>
                   </select>
+                  <select v-if="editForm.needsHighchair === true" v-model="editForm.highchairCount" class="edit-input w-16 mt-1">
+                    <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+                  </select>
                 </td>
                 <td class="px-2 py-2">
                   <select v-model="editForm.relationshipSide" class="edit-input w-24">
@@ -232,7 +241,7 @@
                 <td class="px-4 py-3 text-gray-600">{{ item.phone }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.adultCount ?? '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.childCount ?? '--' }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ item.needsHighchair === true ? '需要' : item.needsHighchair === false ? '不需要' : '--' }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ item.needsHighchair === true ? `需要 ${item.highchairCount ?? 1} 張` : item.needsHighchair === false ? '不需要' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipSide === 'groom' ? '新郎方' : item.relationshipSide === 'bride' ? '新娘方' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipType === 'relative' ? '親戚' : item.relationshipType === 'friend' ? '朋友' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.dietaryPreference === 'vegetarian' ? '素食' : '葷食' }}</td>
@@ -306,6 +315,7 @@ function startEdit(item: any) {
     adultCount: item.adultCount ?? '',
     childCount: item.childCount ?? 0,
     needsHighchair: item.needsHighchair ?? null,
+    highchairCount: item.highchairCount ?? 1,
     relationshipSide: item.relationshipSide ?? '',
     relationshipType: item.relationshipType ?? '',
     dietaryPreference: item.dietaryPreference ?? 'regular',
@@ -332,6 +342,8 @@ async function saveEdit(id: number) {
       adultCount: editForm.value.adultCount === '' ? null : Number(editForm.value.adultCount),
       childCount: Number(editForm.value.childCount),
       needsHighchair: editForm.value.childCount > 0 ? editForm.value.needsHighchair : null,
+      highchairCount: editForm.value.childCount > 0 && editForm.value.needsHighchair === true
+        ? (editForm.value.highchairCount || 1) : null,
       dietaryPreference: editForm.value.dietaryPreference,
       needsInvitation: editForm.value.needsInvitation,
       relationshipSide: editForm.value.relationshipSide || null,
@@ -397,11 +409,12 @@ function exportCsv() {
 
   const sideLabel = (v: string) => v === 'groom' ? '新郎方' : v === 'bride' ? '新娘方' : ''
   const typeLabel = (v: string) => v === 'relative' ? '親戚' : v === 'friend' ? '朋友' : ''
-  const highchairLabel = (v: boolean | null) => v === true ? '需要' : v === false ? '不需要' : ''
+  const highchairLabel = (v: boolean | null, count?: number | null) =>
+    v === true ? `需要 ${count ?? 1} 張` : v === false ? '不需要' : ''
 
   const rows = rsvpList.value.map((r) => [
     r.id, r.name, r.phone,
-    r.adultCount ?? '', r.childCount ?? '', highchairLabel(r.needsHighchair),
+    r.adultCount ?? '', r.childCount ?? '', highchairLabel(r.needsHighchair, r.highchairCount),
     sideLabel(r.relationshipSide), typeLabel(r.relationshipType),
     r.dietaryPreference === 'vegetarian' ? '素食' : '葷食',
     r.needsInvitation ? '需要' : '不需要',

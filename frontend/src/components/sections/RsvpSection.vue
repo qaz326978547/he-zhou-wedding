@@ -165,10 +165,19 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i)
           <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
             是否需要兒童椅 <span class="text-red-400">*</span>
           </p>
-          <div class="flex gap-6">
-            <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+          <div class="flex flex-col gap-3">
+            <label class="flex items-center gap-3 cursor-pointer min-h-[44px]">
               <input type="radio" :value="true" v-model="form.needsHighchair" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
               <span class="text-wedding-charcoal text-sm">需要</span>
+              <template v-if="form.needsHighchair === true">
+                <select
+                  v-model.number="form.highchairCount"
+                  :disabled="isLoading"
+                  class="bg-transparent border-b border-wedding-gold py-1 text-wedding-charcoal text-sm focus:outline-none w-20"
+                >
+                  <option v-for="n in 10" :key="n" :value="n" class="bg-wedding-cream">{{ n }} 張</option>
+                </select>
+              </template>
             </label>
             <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
               <input type="radio" :value="false" v-model="form.needsHighchair" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />

@@ -47,6 +47,12 @@
               <option :value="false">不需要</option>
             </select>
           </div>
+          <div v-if="form.needsHighchair === true">
+            <label class="block text-xs text-gray-500 mb-1">兒童椅幾張</label>
+            <select v-model="form.highchairCount" class="input-field">
+              <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+            </select>
+          </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -130,6 +136,7 @@ const defaultForm = () => ({
   adultCount: '' as number | '',
   childCount: 0,
   needsHighchair: null as boolean | null,
+  highchairCount: 1,
   relationshipSide: '',
   relationshipType: '',
   dietaryPreference: 'regular',
@@ -162,7 +169,10 @@ async function handleSubmit() {
       dietaryPreference: form.value.dietaryPreference,
       needsInvitation: form.value.needsInvitation,
     }
-    if (form.value.childCount > 0) payload.needsHighchair = form.value.needsHighchair
+    if (form.value.childCount > 0) {
+      payload.needsHighchair = form.value.needsHighchair
+      if (form.value.needsHighchair === true) payload.highchairCount = form.value.highchairCount
+    }
     if (form.value.relationshipSide) payload.relationshipSide = form.value.relationshipSide
     if (form.value.relationshipType && form.value.relationshipSide) payload.relationshipType = form.value.relationshipType
     if (form.value.needsInvitation) {
