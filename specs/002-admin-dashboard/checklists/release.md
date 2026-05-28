@@ -10,7 +10,8 @@
 
 ## Security Requirements Quality
 
-- [ ] CHK001 FR-A003 中 token 儲存機制是否已確定為唯一選項（localStorage 或 httpOnly cookie）而非「二選一」？目前規格列出兩個選項，實際決策未記錄。[Ambiguity, Spec §FR-A003]
+- [x] CHK001 FR-A003 中 token 儲存機制是否已確定為唯一選項（localStorage 或 httpOnly cookie）而非「二選一」？目前規格列出兩個選項，實際決策未記錄。[Ambiguity, Spec §FR-A003]
+  - ✓ 已解決：確認使用 `localStorage`（key: `admin_token`）；httpOnly cookie 明確排除；XSS 風險已記錄於 Assumptions
 - [ ] CHK002 是否定義 JWT token 過期後的使用者體驗需求（mid-session 過期時前端行為）？規格僅說 24 小時有效，未述及自動導回登入頁或靜默刷新策略。[Gap, Spec §FR-A003]
 - [ ] CHK003 是否有登入嘗試頻率限制的需求定義（brute force / rate limiting）？規格未提及帳號鎖定或 429 保護。[Gap, Spec §FR-A002]
 - [ ] CHK004 HTTPS 是否明確列為必要需求？規格未見明文聲明（雖部署環境隱含），但安全需求應顯式記錄。[Gap]

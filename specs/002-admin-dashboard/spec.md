@@ -99,7 +99,7 @@
 驗證成功後 MUST 發給前端 JWT token，token 有效期 24 小時。
 
 #### FR-A003 Session 保持
-JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期內重新開啟 `/admin` MUST 自動進入後台，不需重新登入。
+JWT token MUST 儲存於前端 `localStorage`（key: `admin_token`）；有效期內重新開啟 `/admin` MUST 自動進入後台，不需重新登入。httpOnly cookie 方案明確排除（v1 不需 server-side session 管理，且 SPA 架構使用 localStorage 較為直接）。
 
 #### FR-A004 登出
 主辦人點擊登出後，MUST 清除前端 token 並導向 `/admin/login`。
@@ -160,7 +160,8 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 - v1 不需要操作紀錄（audit log）或分角色權限；兩位主辦人權限完全相同
 - 後台採 Mobile-First 設計，手機版（< 768px）以卡片佈局呈現每筆 RSVP，桌機版（≥ 768px）以完整表格呈現
 - Vue Router 的 `/admin` 路由在前台 SPA 中以 navigation guard 保護；後端負責 API 層保護
-- JWT secret 儲存於後端環境變數 `JWT_SECRET`；v1 使用對稱式簽名（HS256）
+- JWT secret 儲存於後端環境變數 `JWT_SECRET`；v1 使用對稱式簽名（HS256），secret 長度 ≥ 32 字元
+- JWT token 儲存於前端 `localStorage`（key: `admin_token`）；v1 接受 XSS 風險（婚禮內部工具，非公開商業系統）
 - 後台不發送電子郵件通知（僅資料庫操作）
 - 後台 UI 採簡潔表格樣式，不需符合前台韓系婚禮視覺風格
 
