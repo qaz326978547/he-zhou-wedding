@@ -8,7 +8,7 @@ import LineButton from '@/components/ui/LineButton.vue'
 
 const {
   form, errors, isLoading, isSubmitted, submitError, isRsvpEnabled,
-  showGuestCount, showRelationshipType, notesLength,
+  showGuestFields, showHighchair, showRelationshipType, showInvitationFields,
   submit, checkRsvpStatus,
 } = useRsvp()
 
@@ -18,13 +18,8 @@ function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-const DIETARY_OPTIONS = [
-  { value: 'regular',    label: '一般' },
-  { value: 'vegetarian', label: '素食' },
-  { value: 'no_beef',    label: '不吃牛肉' },
-  { value: 'no_pork',    label: '不吃豬肉' },
-  { value: 'other',      label: '其他' },
-]
+const ADULT_OPTIONS = Array.from({ length: 10 }, (_, i) => i + 1)
+const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i)
 </script>
 
 <template>
@@ -40,7 +35,7 @@ const DIETARY_OPTIONS = [
       <p class="font-display text-2xl text-wedding-mist tracking-widest">報名已截止</p>
     </div>
 
-    <!-- Success Screen (FR-012) -->
+    <!-- Success Screen -->
     <div v-else-if="isSubmitted" class="max-w-2xl mx-auto text-center space-y-10">
       <div>
         <svg class="w-14 h-14 text-wedding-gold mx-auto mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -56,24 +51,16 @@ const DIETARY_OPTIONS = [
         <p class="text-wedding-mist text-xs mt-1">{{ WEDDING.venue.address }}</p>
       </div>
 
-      <!-- LINE Invite Block (FR-021) -->
       <div class="bg-white rounded-xl shadow-card border border-wedding-stone p-8 space-y-6">
         <p class="text-wedding-gold font-display tracking-widest text-xs uppercase">加入 LINE 官方帳號</p>
         <p class="text-wedding-charcoal/70 text-sm">{{ WEDDING.line.description }}</p>
         <div class="flex flex-col items-center gap-4">
-          <img
-            :src="WEDDING.line.qrCodePath"
-            alt="LINE QR Code"
-            class="w-32 h-32 object-contain rounded-lg"
-            loading="lazy"
-          />
+          <img :src="WEDDING.line.qrCodePath" alt="LINE QR Code" class="w-32 h-32 object-contain rounded-lg" loading="lazy" />
           <LineButton :href="WEDDING.line.url" label="加入 LINE 官方帳號" />
         </div>
       </div>
 
-      <Button variant="outline" @click="scrollToTop">
-        回到頁面頂端
-      </Button>
+      <Button variant="outline" @click="scrollToTop">回到頁面頂端</Button>
     </div>
 
     <!-- RSVP Form -->
@@ -84,180 +71,213 @@ const DIETARY_OPTIONS = [
       </div>
 
       <!-- Name -->
-      <Input
-        v-model="form.name"
-        label="姓名"
-        placeholder="請填寫您的姓名"
-        :error="errors.name"
-        :disabled="isLoading"
-        required
-      />
+      <Input v-model="form.name" label="姓名" placeholder="請填寫您的姓名" :error="errors.name" :disabled="isLoading" required />
 
       <!-- Phone -->
-      <Input
-        v-model="form.phone"
-        label="電話"
-        type="tel"
-        placeholder="09xxxxxxxx 或 0xxxxxxxxx"
-        :error="errors.phone"
-        :disabled="isLoading"
-        required
-      />
+      <Input v-model="form.phone" label="電話" type="tel" placeholder="09xxxxxxxx 或 0xxxxxxxxx" :error="errors.phone" :disabled="isLoading" required />
 
-      <!-- Attending -->
+      <!-- Attending — card-style radio, above guest count -->
       <div>
-        <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
-          出席狀態 <span class="text-red-400">*</span>
+        <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-4">
+          出席意願 <span class="text-red-400">*</span>
         </p>
-        <div class="flex gap-6">
-          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              :value="true"
-              v-model="form.attending"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">出席</span>
+        <div class="grid grid-cols-1 gap-3">
+          <label
+            class="relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 min-h-[44px]"
+            :class="form.attending === true
+              ? 'border-wedding-gold bg-wedding-gold/5 shadow-sm'
+              : 'border-wedding-stone bg-white/60 hover:border-wedding-gold/40'"
+          >
+            <input type="radio" :value="true" v-model="form.attending" class="sr-only" :disabled="isLoading" />
+            <span
+              class="mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all"
+              :class="form.attending === true ? 'border-wedding-gold' : 'border-wedding-stone'"
+            >
+              <span v-if="form.attending === true" class="w-2 h-2 rounded-full bg-wedding-gold" />
+            </span>
+            <div>
+              <p class="font-display text-wedding-charcoal text-sm tracking-wide">開心出席</p>
+              <p class="text-wedding-charcoal/55 text-xs mt-1 leading-relaxed">
+                開心出席～婚禮當天見啦～～♡⸜(｡˃ ᵕ ˂ )⸝
+              </p>
+            </div>
           </label>
-          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              :value="false"
-              v-model="form.attending"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">不克出席</span>
+
+          <label
+            class="relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 min-h-[44px]"
+            :class="form.attending === false
+              ? 'border-wedding-gold bg-wedding-gold/5 shadow-sm'
+              : 'border-wedding-stone bg-white/60 hover:border-wedding-gold/40'"
+          >
+            <input type="radio" :value="false" v-model="form.attending" class="sr-only" :disabled="isLoading" />
+            <span
+              class="mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-all"
+              :class="form.attending === false ? 'border-wedding-gold' : 'border-wedding-stone'"
+            >
+              <span v-if="form.attending === false" class="w-2 h-2 rounded-full bg-wedding-gold" />
+            </span>
+            <div>
+              <p class="font-display text-wedding-charcoal text-sm tracking-wide">不克出席</p>
+              <p class="text-wedding-charcoal/55 text-xs mt-1 leading-relaxed">
+                不克出席，但會在遠方為你們感到開心˚ʚ♡ɞ˚
+              </p>
+            </div>
           </label>
         </div>
       </div>
 
-      <!-- Guest Count (only when attending) -->
-      <div v-if="showGuestCount">
-        <label class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2">
-          出席人數 <span class="text-red-400">*</span>
-        </label>
-        <input
-          v-model.number="form.guestCount"
-          type="number"
-          min="1"
-          max="10"
-          :disabled="isLoading"
-          class="bg-transparent border-b border-wedding-stone px-0 py-3 text-wedding-charcoal w-24 focus:outline-none focus:border-wedding-gold transition-colors"
-          :class="{ 'border-red-400': errors.guestCount }"
-        />
-        <p v-if="errors.guestCount" class="text-red-400 text-xs mt-1">{{ errors.guestCount }}</p>
-      </div>
+      <!-- Guest counts (only when attending) -->
+      <template v-if="showGuestFields">
+        <!-- Adult count -->
+        <div>
+          <label class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2">
+            大人幾位 <span class="text-red-400">*</span>
+          </label>
+          <select
+            v-model.number="form.adultCount"
+            :disabled="isLoading"
+            class="w-full bg-transparent border-b border-wedding-stone py-3 text-wedding-charcoal focus:outline-none focus:border-wedding-gold transition-colors"
+            :class="{ 'border-red-400': errors.adultCount }"
+          >
+            <option v-for="n in ADULT_OPTIONS" :key="n" :value="n" class="bg-wedding-cream">{{ n }} 位</option>
+          </select>
+          <p v-if="errors.adultCount" class="text-red-400 text-xs mt-1">{{ errors.adultCount }}</p>
+        </div>
 
-      <!-- Relationship Side (optional) -->
+        <!-- Child count -->
+        <div>
+          <label class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2">
+            小孩幾位 <span class="text-wedding-mist/70 text-xs normal-case tracking-normal">（12 歲以下）</span>
+          </label>
+          <select
+            v-model.number="form.childCount"
+            :disabled="isLoading"
+            class="w-full bg-transparent border-b border-wedding-stone py-3 text-wedding-charcoal focus:outline-none focus:border-wedding-gold transition-colors"
+            :class="{ 'border-red-400': errors.childCount }"
+          >
+            <option v-for="n in CHILD_OPTIONS" :key="n" :value="n" class="bg-wedding-cream">{{ n }} 位</option>
+          </select>
+          <p v-if="errors.childCount" class="text-red-400 text-xs mt-1">{{ errors.childCount }}</p>
+        </div>
+
+        <!-- Highchair (conditional: childCount > 0) -->
+        <div v-if="showHighchair">
+          <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
+            是否需要兒童椅 <span class="text-red-400">*</span>
+          </p>
+          <div class="flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+              <input type="radio" :value="true" v-model="form.needsHighchair" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+              <span class="text-wedding-charcoal text-sm">需要</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+              <input type="radio" :value="false" v-model="form.needsHighchair" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+              <span class="text-wedding-charcoal text-sm">不需要</span>
+            </label>
+          </div>
+          <p v-if="errors.needsHighchair" class="text-red-400 text-xs mt-1">{{ errors.needsHighchair }}</p>
+        </div>
+      </template>
+
+      <!-- Relationship Side -->
       <div>
         <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
           賓桌歸屬 <span class="text-wedding-mist/70 text-xs normal-case tracking-normal">（選填）</span>
         </p>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              value="groom"
-              v-model="form.relationshipSide"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">新郎方</span>
+            <input type="radio" value="groom" v-model="form.relationshipSide" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">新郎方</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              value="bride"
-              v-model="form.relationshipSide"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">新娘方</span>
+            <input type="radio" value="bride" v-model="form.relationshipSide" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">新娘方</span>
           </label>
         </div>
       </div>
 
-      <!-- Relationship Type (only when side selected) -->
+      <!-- Relationship Type -->
       <div v-if="showRelationshipType">
         <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
           關係類型 <span class="text-wedding-mist/70 text-xs normal-case tracking-normal">（選填）</span>
         </p>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              value="relative"
-              v-model="form.relationshipType"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">親屬</span>
+            <input type="radio" value="relative" v-model="form.relationshipType" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">親屬</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
-            <input
-              type="radio"
-              value="friend"
-              v-model="form.relationshipType"
-              class="accent-wedding-gold w-4 h-4"
-              :disabled="isLoading"
-            />
-            <span class="text-wedding-charcoal">朋友</span>
+            <input type="radio" value="friend" v-model="form.relationshipType" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">朋友</span>
           </label>
         </div>
       </div>
 
       <!-- Dietary Preference -->
       <div>
-        <label class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-3">
+        <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
           飲食偏好 <span class="text-wedding-mist/70 text-xs normal-case tracking-normal">（選填）</span>
-        </label>
-        <select
-          v-model="form.dietaryPreference"
-          :disabled="isLoading"
-          class="w-full bg-transparent border-b border-wedding-stone py-3 text-wedding-charcoal focus:outline-none focus:border-wedding-gold transition-colors"
-        >
-          <option
-            v-for="opt in DIETARY_OPTIONS"
-            :key="opt.value"
-            :value="opt.value"
-            class="bg-wedding-cream"
-          >
-            {{ opt.label }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Notes -->
-      <div>
-        <label class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2">
-          備註 <span class="text-wedding-mist/70 text-xs normal-case tracking-normal">（選填，最多 300 字元）</span>
-        </label>
-        <textarea
-          v-model="form.notes"
-          rows="3"
-          maxlength="300"
-          placeholder="嬰兒椅需求、素食細節、輪椅空間、提前離席、停車需求…"
-          :disabled="isLoading"
-          class="w-full bg-white/60 border border-wedding-stone rounded-lg p-3 text-wedding-charcoal placeholder-wedding-mist/50 focus:outline-none focus:border-wedding-gold transition-colors resize-none"
-          :class="{ 'border-red-400': errors.notes }"
-        />
-        <div class="flex justify-between mt-1">
-          <p v-if="errors.notes" class="text-red-400 text-xs">{{ errors.notes }}</p>
-          <p class="text-wedding-mist/70 text-xs ml-auto" :class="{ 'text-red-400': notesLength > 300 }">
-            {{ notesLength }} / 300
-          </p>
+        </p>
+        <div class="flex gap-6">
+          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+            <input type="radio" value="regular" v-model="form.dietaryPreference" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">葷食</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+            <input type="radio" value="vegetarian" v-model="form.dietaryPreference" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">素食</span>
+          </label>
         </div>
       </div>
 
-      <!-- Submit Button (FR-019) -->
-      <Button
-        type="submit"
-        :loading="isLoading"
-        :disabled="isLoading"
-        class="w-full"
-      >
+      <!-- Paper invitation -->
+      <div>
+        <p class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3">
+          是否需要紙本喜帖
+        </p>
+        <div class="flex gap-6">
+          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+            <input type="radio" :value="true" v-model="form.needsInvitation" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">需要</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
+            <input type="radio" :value="false" v-model="form.needsInvitation" class="accent-wedding-gold w-4 h-4" :disabled="isLoading" />
+            <span class="text-wedding-charcoal text-sm">不需要</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Invitation address fields (conditional) -->
+      <template v-if="showInvitationFields">
+        <Input
+          v-model="form.invitationName"
+          label="收件人姓名"
+          placeholder="請填寫收件人姓名"
+          :error="errors.invitationName"
+          :disabled="isLoading"
+          required
+        />
+        <Input
+          v-model="form.invitationPhone"
+          label="收件人電話"
+          type="tel"
+          placeholder="09xxxxxxxx 或 0xxxxxxxxx"
+          :error="errors.invitationPhone"
+          :disabled="isLoading"
+          required
+        />
+        <Input
+          v-model="form.invitationAddress"
+          label="收件地址"
+          placeholder="請填寫完整收件地址"
+          :error="errors.invitationAddress"
+          :disabled="isLoading"
+          required
+        />
+      </template>
+
+      <!-- Submit -->
+      <Button type="submit" :loading="isLoading" :disabled="isLoading" class="w-full">
         {{ isLoading ? '提交中…' : '確認提交' }}
       </Button>
     </form>

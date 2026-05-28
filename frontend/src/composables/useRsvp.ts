@@ -9,11 +9,16 @@ export function useRsvp() {
     name: '',
     phone: '',
     attending: true as boolean,
-    guestCount: 1,
+    adultCount: 1,
+    childCount: 0,
+    needsHighchair: null as boolean | null,
     relationshipSide: '' as '' | 'groom' | 'bride',
     relationshipType: '' as '' | 'relative' | 'friend',
-    dietaryPreference: 'regular' as RsvpPayload['dietaryPreference'],
-    notes: '',
+    dietaryPreference: 'regular' as 'regular' | 'vegetarian',
+    needsInvitation: false,
+    invitationName: '',
+    invitationPhone: '',
+    invitationAddress: '',
   })
 
   const errors = reactive<Record<string, string>>({})
@@ -22,9 +27,10 @@ export function useRsvp() {
   const submitError = ref('')
   const isRsvpEnabled = ref(true)
 
-  const showGuestCount = computed(() => form.attending === true)
+  const showGuestFields = computed(() => form.attending === true)
+  const showHighchair = computed(() => form.attending && form.childCount > 0)
   const showRelationshipType = computed(() => !!form.relationshipSide)
-  const notesLength = computed(() => form.notes.length)
+  const showInvitationFields = computed(() => form.needsInvitation)
 
   function clearErrors() {
     Object.keys(errors).forEach((k) => delete errors[k])
@@ -45,13 +51,33 @@ export function useRsvp() {
       errors.phone = '請輸入台灣手機（09 開頭）或市話格式'
       valid = false
     }
-    if (form.attending && (form.guestCount < 1 || form.guestCount > 10)) {
-      errors.guestCount = '出席人數需在 1–10 之間'
-      valid = false
+    if (form.attending) {
+      if (!form.adultCount || form.adultCount < 1 || form.adultCount > 10) {
+        errors.adultCount = '請選擇大人人數（1–10）'
+        valid = false
+      }
+      if (form.childCount < 0 || form.childCount > 10) {
+        errors.childCount = '小孩人數請選 0–10'
+        valid = false
+      }
+      if (form.childCount > 0 && form.needsHighchair === null) {
+        errors.needsHighchair = '請選擇是否需要兒童椅'
+        valid = false
+      }
     }
-    if (form.notes.length > 300) {
-      errors.notes = '備註最多 300 字元'
-      valid = false
+    if (form.needsInvitation) {
+      if (!form.invitationName.trim()) {
+        errors.invitationName = '請填寫收件人姓名'
+        valid = false
+      }
+      if (!form.invitationPhone.trim() || !TAIWAN_PHONE.test(form.invitationPhone.trim())) {
+        errors.invitationPhone = '請填寫有效的收件人電話'
+        valid = false
+      }
+      if (!form.invitationAddress.trim()) {
+        errors.invitationAddress = '請填寫收件地址'
+        valid = false
+      }
     }
 
     return valid
@@ -75,13 +101,22 @@ export function useRsvp() {
       name: form.name.trim(),
       phone: form.phone.trim(),
       attending: form.attending,
-      guestCount: form.attending ? form.guestCount : 0,
       dietaryPreference: form.dietaryPreference,
+      needsInvitation: form.needsInvitation,
+    }
+
+    if (form.attending) {
+      payload.adultCount = form.adultCount
+      payload.childCount = form.childCount
+      if (form.childCount > 0) payload.needsHighchair = form.needsHighchair
     }
     if (form.relationshipSide) payload.relationshipSide = form.relationshipSide
-    if (form.relationshipSide && form.relationshipType)
-      payload.relationshipType = form.relationshipType
-    if (form.notes.trim()) payload.notes = form.notes.trim()
+    if (form.relationshipSide && form.relationshipType) payload.relationshipType = form.relationshipType
+    if (form.needsInvitation) {
+      payload.invitationName = form.invitationName.trim()
+      payload.invitationPhone = form.invitationPhone.trim()
+      payload.invitationAddress = form.invitationAddress.trim()
+    }
 
     try {
       await api.post('/api/rsvp', payload)
@@ -112,9 +147,10 @@ export function useRsvp() {
     isSubmitted,
     submitError,
     isRsvpEnabled,
-    showGuestCount,
+    showGuestFields,
+    showHighchair,
     showRelationshipType,
-    notesLength,
+    showInvitationFields,
     submit,
     checkRsvpStatus,
   }

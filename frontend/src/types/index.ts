@@ -2,11 +2,16 @@ export interface RsvpPayload {
   name: string
   phone: string
   attending: boolean
-  guestCount: number
+  adultCount?: number | null
+  childCount?: number | null
+  needsHighchair?: boolean | null
   relationshipSide?: 'groom' | 'bride'
   relationshipType?: 'relative' | 'friend'
-  dietaryPreference?: 'regular' | 'vegetarian' | 'no_beef' | 'no_pork' | 'other'
-  notes?: string
+  dietaryPreference?: 'regular' | 'vegetarian'
+  needsInvitation?: boolean
+  invitationName?: string
+  invitationPhone?: string
+  invitationAddress?: string
 }
 
 export interface ApiResponse<T> {

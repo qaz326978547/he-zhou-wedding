@@ -83,7 +83,7 @@ function scrollToRsvp() {
             何啟賢
           </p>
           <p class="font-display text-[10px] md:text-xs text-wedding-charcoal/55 tracking-[0.38em] mt-2 uppercase">
-            HE Bean
+            Bean
           </p>
         </div>
 
@@ -96,7 +96,7 @@ function scrollToRsvp() {
             周羽薇
           </p>
           <p class="font-display text-[10px] md:text-xs text-wedding-charcoal/55 tracking-[0.38em] mt-2 uppercase">
-            Katherine Zhou
+            Katherine
           </p>
         </div>
       </div>
@@ -106,7 +106,7 @@ function scrollToRsvp() {
         class="hero-fade font-display text-wedding-charcoal/50 tracking-[0.38em] text-[11px] md:text-xs text-center mb-6"
         style="--delay: 1.5s"
       >
-        2026 · 11 · 14
+        2026 / 11 / 14
       </p>
 
       <!-- CTA -->
