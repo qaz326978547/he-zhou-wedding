@@ -9,6 +9,11 @@
 
 ## Clarifications
 
+### Session 2026-05-29
+
+- Q: 後台新增 / 修改 RSVP 時，出席人數是否允許留空？ → A: 允許；guestCount 可為 null，表示「人數待確認」；後台 admin schema 允許 null；列表與卡片顯示「--」；公開前台表單驗證規則不受影響
+- Q: 後台列表 API 載入失敗時，前端應如何顯示？ → A: 顯示「資料載入失敗，請重新整理頁面」錯誤提示；搜尋框與新增按鈕保持可用
+
 ### Session 2026-05-28
 
 - Q: 修改 RSVP 時編輯介面樣式為何？ → A: Inline 直接在表格列上編輯（每個欄位變 input，儲存後恢復顯示文字）
@@ -72,6 +77,8 @@
 - 修改時電話號碼改為已存在的另一筆（後端驗證拒絕，顯示重複錯誤）
 - 直接輸入 `/admin/rsvp` 等後台子路由未登入時（MUST 導向登入頁）
 - 後台 API 未攜帶有效 token 時直接呼叫（MUST 回傳 401）
+- 後台列表 API 回應失敗（網路錯誤、5xx）時，顯示錯誤提示，不誤導主辦人以為 RSVP 資料為空
+- 後台新增 / 修改時 guestCount 留空（null）應正常儲存，統計計算時視為 0
 
 ---
 
@@ -101,17 +108,19 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 - 總回覆筆數（所有 RSVP 提交數量）
 - 總出席人數（所有 guestCount 加總）
 
-統計數字由前端從已載入的列表資料即時計算（不需額外 API）。
+統計數字由前端從已載入的列表資料即時計算（不需額外 API）。guestCount 為 null 的紀錄，計算總出席人數時視為 0。
+
+若 API 載入失敗，MUST 顯示「資料載入失敗，請重新整理頁面」錯誤提示；搜尋框與「新增 RSVP」按鈕保持可用。
 
 列表上方 MUST 提供即時搜尋輸入框，依姓名或電話號碼關鍵字即時篩選列表（前端 computed，不呼叫額外 API）；無符合結果時顯示「找不到符合的紀錄」。
 
 列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes、createdAt（UTC+8）、notificationEmailSent。出席狀態（attending）欄位儲存於資料庫但不顯示於後台 UI。
 
 #### FR-A006 新增 RSVP
-主辦人點擊「新增」MUST 開啟 Modal 彈窗，表單欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；attending 欄位不顯示於表單，預設為 true；送出成功後 MUST 自動關閉 Modal 並將新資料插入列表頂端；後端 MUST 執行相同的資料驗證規則（電話格式、guestCount 範圍等）；點擊 Modal 外部或「取消」按鈕可關閉 Modal（未送出的資料不儲存）。
+主辦人點擊「新增」MUST 開啟 Modal 彈窗，表單欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；attending 欄位不顯示於表單，預設為 true；guestCount 欄位可留空（null），表示人數待確認，列表顯示「--」；送出成功後 MUST 自動關閉 Modal 並將新資料插入列表頂端；後端對 admin 路由允許 guestCount 為 null（公開前台驗證規則不變）；點擊 Modal 外部或「取消」按鈕可關閉 Modal（未送出的資料不儲存）。
 
 #### FR-A007 修改 RSVP
-主辦人 MUST 可修改任一筆 RSVP 的可見欄位；點擊「修改」後該列進入 inline 編輯模式，各欄位直接在表格列上變為可編輯 input；可編輯欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes），attending 欄位不顯示於編輯介面（送出時保留原值）；點擊「儲存」送出後恢復文字顯示；點擊「取消」放棄修改回復原始內容；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
+主辦人 MUST 可修改任一筆 RSVP 的可見欄位；點擊「修改」後該列進入 inline 編輯模式，各欄位直接在表格列上變為可編輯 input；可編輯欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes），attending 欄位不顯示於編輯介面（送出時保留原值）；guestCount 欄位可清空（null），表示人數待確認；點擊「儲存」送出後恢復文字顯示（null 顯示為「--」）；點擊「取消」放棄修改回復原始內容；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
 
 #### FR-A008 刪除 RSVP
 主辦人 MUST 可刪除任一筆 RSVP；刪除前 MUST 顯示確認對話框，確認後資料從資料庫永久移除。
@@ -128,7 +137,7 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 ### Key Entities
 
 - **AdminSession（無持久化）**：主辦人登入 token；JWT 無狀態，儲存於前端；無需資料庫欄位
-- **RSVPSubmission（既有）**：複用現有 schema，後台新增 `PUT`（修改）與 `DELETE` 操作
+- **RSVPSubmission（既有）**：複用現有 schema，後台新增 `PUT`（修改）與 `DELETE` 操作；後台 admin 路由允許 `guestCount` 為 null（`Int?`），Prisma schema 需對應調整；公開前台路由的 guestCount 驗證規則不變
 
 ---
 
