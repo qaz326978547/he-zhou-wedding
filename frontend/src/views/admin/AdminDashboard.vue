@@ -74,7 +74,7 @@
               <div v-if="editForm.needsHighchair === true">
                 <label class="text-xs text-gray-400">兒童椅幾張</label>
                 <select v-model="editForm.highchairCount" class="edit-input">
-                  <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+                  <option v-for="n in (editForm.childCount || 0)" :key="n" :value="n">{{ n }} 張</option>
                 </select>
               </div>
               <div>
@@ -196,7 +196,7 @@
                     <option :value="false">不需要</option>
                   </select>
                   <select v-if="editForm.needsHighchair === true" v-model="editForm.highchairCount" class="edit-input w-16 mt-1">
-                    <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+                    <option v-for="n in (editForm.childCount || 0)" :key="n" :value="n">{{ n }} 張</option>
                   </select>
                 </td>
                 <td class="px-2 py-2">
@@ -268,7 +268,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import adminApi from '../../services/adminApi'
 import RsvpModal from '../../components/admin/RsvpModal.vue'
@@ -304,6 +304,12 @@ async function loadList() {
     loadError.value = true
   }
 }
+
+watch(() => editForm.value.childCount, (newCount) => {
+  if (newCount > 0 && editForm.value.highchairCount > newCount) {
+    editForm.value.highchairCount = newCount
+  }
+})
 
 function startEdit(item: any) {
   editingId.value = item.id

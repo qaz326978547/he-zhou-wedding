@@ -27,6 +27,14 @@ export const adminCreateRsvpSchema = z
     invitationAddress: z.string().optional(),
   })
   .refine(relationshipRefinement, { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] })
+  .refine(
+    (d) => {
+      if (d.needsHighchair !== true) return true
+      if (!d.childCount || !d.highchairCount) return true
+      return d.highchairCount <= d.childCount
+    },
+    { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
+  )
 
 export type AdminCreateRsvpInput = z.infer<typeof adminCreateRsvpSchema>
 
@@ -49,5 +57,13 @@ export const adminRsvpSchema = z
     invitationAddress: z.string().optional(),
   })
   .refine(relationshipRefinement, { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] })
+  .refine(
+    (d) => {
+      if (d.needsHighchair !== true) return true
+      if (!d.childCount || !d.highchairCount) return true
+      return d.highchairCount <= d.childCount
+    },
+    { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
+  )
 
 export type AdminRsvpInput = z.infer<typeof adminRsvpSchema>

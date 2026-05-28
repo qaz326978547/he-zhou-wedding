@@ -50,7 +50,7 @@
           <div v-if="form.needsHighchair === true">
             <label class="block text-xs text-gray-500 mb-1">兒童椅幾張</label>
             <select v-model="form.highchairCount" class="input-field">
-              <option v-for="n in 10" :key="n" :value="n">{{ n }} 張</option>
+              <option v-for="n in highchairOptions" :key="n" :value="n">{{ n }} 張</option>
             </select>
           </div>
 
@@ -121,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import adminApi from '../../services/adminApi'
 
 const props = defineProps<{ visible: boolean }>()
@@ -150,10 +150,18 @@ const form = ref(defaultForm())
 const loading = ref(false)
 const errorMsg = ref('')
 
+const highchairOptions = computed(() => form.value.childCount || 0)
+
 watch(() => props.visible, (v) => {
   if (v) {
     form.value = defaultForm()
     errorMsg.value = ''
+  }
+})
+
+watch(() => form.value.childCount, (newCount) => {
+  if (newCount > 0 && form.value.highchairCount > newCount) {
+    form.value.highchairCount = newCount
   }
 })
 

@@ -46,6 +46,14 @@ export const rsvpSchema = z
     { message: '請選擇是否需要兒童椅', path: ['needsHighchair'] },
   )
   .refine(
+    (d) => {
+      if (d.needsHighchair !== true) return true
+      if (!d.childCount || !d.highchairCount) return true
+      return d.highchairCount <= d.childCount
+    },
+    { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
+  )
+  .refine(
     (d) => !(d.relationshipType && !d.relationshipSide),
     { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] },
   )

@@ -175,7 +175,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i)
                   :disabled="isLoading"
                   class="bg-transparent border-b border-wedding-gold py-1 text-wedding-charcoal text-sm focus:outline-none w-20"
                 >
-                  <option v-for="n in 10" :key="n" :value="n" class="bg-wedding-cream">{{ n }} 張</option>
+                  <option v-for="n in form.childCount" :key="n" :value="n" class="bg-wedding-cream">{{ n }} 張</option>
                 </select>
               </template>
             </label>

@@ -154,7 +154,7 @@ Authorization: Bearer <JWT token>
 | adultCount | number \| null | — | 大人人數（1–10）；null 表示待確認 |
 | childCount | number | — | 小孩人數（0–10）；預設 0 |
 | needsHighchair | boolean \| null | — | 是否需要兒童椅；childCount > 0 時有意義 |
-| highchairCount | number \| null | — | 兒童椅張數（1–10）；needsHighchair = true 時有意義 |
+| highchairCount | number \| null | — | 兒童椅張數（1–childCount）；needsHighchair = true 時有意義；**不可超過 childCount** |
 | relationshipSide | "groom" \| "bride" | — | 賓桌歸屬 |
 | relationshipType | "relative" \| "friend" | — | 關係類型；需先設定 relationshipSide |
 | dietaryPreference | "regular" \| "vegetarian" | — | 飲食偏好；預設 "regular" |

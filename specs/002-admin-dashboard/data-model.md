@@ -80,7 +80,7 @@ ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}
 | `adultCount` | Int? | ✅ 選填 | ✅ | 1–10；**null 表示人數待確認**（admin 路由允許；前台路由出席時必填） |
 | `childCount` | Int? | ✅ 選填 | ✅ | 0–10；預設 0 |
 | `needsHighchair` | Boolean? | ✅ 選填 | ✅ | childCount > 0 時有意義；null 表示未確認 |
-| `highchairCount` | Int? | ✅ 選填 | ✅ | 1–10；needsHighchair = true 時有意義 |
+| `highchairCount` | Int? | ✅ 選填 | ✅ | 1–childCount；needsHighchair = true 時有意義；**不可超過 childCount**（後端 refine 驗證） |
 | `relationshipSide` | String? | ✅ 選填 | ✅ | `groom` / `bride` / null |
 | `relationshipType` | String? | ✅ 選填 | ✅ | `relative` / `friend` / null；需先設定 relationshipSide |
 | `dietaryPreference` | String | ✅ 選填 | ✅ | `regular` / `vegetarian` 兩選一；預設 `regular` |

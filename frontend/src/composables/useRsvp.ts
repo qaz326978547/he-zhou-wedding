@@ -1,4 +1,4 @@
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import api from '@/services/api'
 import type { RsvpPayload } from '@/types'
 
@@ -32,6 +32,12 @@ export function useRsvp() {
   const showHighchair = computed(() => form.attending && form.childCount > 0)
   const showRelationshipType = computed(() => !!form.relationshipSide)
   const showInvitationFields = computed(() => form.needsInvitation)
+
+  watch(() => form.childCount, (newCount) => {
+    if (newCount > 0 && form.highchairCount > newCount) {
+      form.highchairCount = newCount
+    }
+  })
 
   function clearErrors() {
     Object.keys(errors).forEach((k) => delete errors[k])
