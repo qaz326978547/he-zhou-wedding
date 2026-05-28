@@ -17,9 +17,9 @@
 
 **Purpose**: 安裝新相依套件、更新環境變數範本
 
-- [ ] T001 在 `backend/` 安裝新相依套件：`npm install jsonwebtoken && npm install --save-dev @types/jsonwebtoken`
-- [ ] T002 [P] 在 `frontend/` 安裝 Vue Router：`npm install vue-router@4`
-- [ ] T003 [P] 更新 `backend/.env.example`，新增 `JWT_SECRET=your-random-secret-at-least-32-chars` 與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}` 兩個欄位
+- [x] T001 在 `backend/` 安裝新相依套件：`npm install jsonwebtoken && npm install --save-dev @types/jsonwebtoken`
+- [x] T002 [P] 在 `frontend/` 安裝 Vue Router：`npm install vue-router@4`
+- [x] T003 [P] 更新 `backend/.env.example`，新增 `JWT_SECRET=your-random-secret-at-least-32-chars` 與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}` 兩個欄位
 
 **Checkpoint**: `backend/node_modules/jsonwebtoken` 與 `frontend/node_modules/vue-router` 均存在；`.env.example` 包含新欄位
 
@@ -31,10 +31,10 @@
 
 **⚠️ CRITICAL**: 本階段完成前，不得開始任何 User Story 實作
 
-- [ ] T004 實作 JWT 驗證 middleware 於 `backend/src/middleware/adminAuth.ts`（讀取 `Authorization: Bearer <token>` header；以 `process.env.JWT_SECRET` 驗證 HS256 JWT；token 無效或過期時回傳 `{ error: 'UNAUTHORIZED', message: '請先登入' }` HTTP 401；驗證通過則呼叫 `next()`）
-- [ ] T005 [P] 建立 Vue Router 於 `frontend/src/router/index.ts`（`createWebHistory()`；三條路由：`/`→`App.vue` 現有根元件、`/admin`→`AdminDashboard.vue`、`/admin/login`→`AdminLogin.vue`；navigation guard：`/admin/*` 路由在 `localStorage.admin_token` 不存在時自動導向 `/admin/login`）
-- [ ] T006 [P] 建立 adminApi Axios 實例於 `frontend/src/services/adminApi.ts`（`baseURL: import.meta.env.VITE_API_BASE_URL`；request interceptor：自動附加 `Authorization: Bearer <token>`；response interceptor：收到 401 時清除 `localStorage.admin_token` 並 `window.location.href = '/admin/login'`）
-- [ ] T007 更新 `frontend/src/main.ts`，在 `app.mount('#app')` 前加入 `import router from './router'` 與 `app.use(router)`（T007 依賴 T005 完成）
+- [x] T004 實作 JWT 驗證 middleware 於 `backend/src/middleware/adminAuth.ts`（讀取 `Authorization: Bearer <token>` header；以 `process.env.JWT_SECRET` 驗證 HS256 JWT；token 無效或過期時回傳 `{ error: 'UNAUTHORIZED', message: '請先登入' }` HTTP 401；驗證通過則呼叫 `next()`）
+- [x] T005 [P] 建立 Vue Router 於 `frontend/src/router/index.ts`（`createWebHistory()`；三條路由：`/`→`App.vue` 現有根元件、`/admin`→`AdminDashboard.vue`、`/admin/login`→`AdminLogin.vue`；navigation guard：`/admin/*` 路由在 `localStorage.admin_token` 不存在時自動導向 `/admin/login`）
+- [x] T006 [P] 建立 adminApi Axios 實例於 `frontend/src/services/adminApi.ts`（`baseURL: import.meta.env.VITE_API_BASE_URL`；request interceptor：自動附加 `Authorization: Bearer <token>`；response interceptor：收到 401 時清除 `localStorage.admin_token` 並 `window.location.href = '/admin/login'`）
+- [x] T007 更新 `frontend/src/main.ts`，在 `app.mount('#app')` 前加入 `import router from './router'` 與 `app.use(router)`（T007 依賴 T005 完成）
 
 **Checkpoint**: 後端可啟動；前端可啟動，訪問 `http://localhost:5173/admin` 被導向 `/admin/login`（空白頁，無元件錯誤）
 
@@ -46,10 +46,10 @@
 
 **Independent Test**: 前往 `http://localhost:5173/admin` 確認導向登入頁；輸入 `bean/bean` 登入，確認跳轉至 `/admin`（AdminDashboard 空殼）；重新整理確認 session 保持；點擊登出確認回到登入頁；輸入錯誤帳密確認顯示錯誤訊息。
 
-- [ ] T008 [P] [US1] 實作 admin login controller 於 `backend/src/controllers/adminController.ts`（`loginAdmin` 函式：讀取並 `JSON.parse(process.env.ADMIN_CREDENTIALS!)`；比對 `credentials[username] === password`；不符合回傳 HTTP 401 `INVALID_CREDENTIALS`；符合則以 `jwt.sign({ username }, process.env.JWT_SECRET!, { expiresIn: '24h' })` 簽發 token，回傳 `{ data: { token, username } }` HTTP 200）
-- [ ] T009 [P] [US1] 建立 admin 路由檔案 `backend/src/routes/admin.ts`（`POST /login` → `loginAdmin`，不掛 adminAuth；`GET /rsvp`、`POST /rsvp`、`PUT /rsvp/:id`、`DELETE /rsvp/:id` 先以 `adminAuth` middleware 保護，controller 函式佔位 stub 回傳 `{ data: {} }` HTTP 200，待 Phase 4 補全）
-- [ ] T010 [US1] 更新 `backend/src/app.ts`，在 `app.use('/api', apiRouter)` 之後新增 `import adminRouter from './routes/admin'` 與 `app.use('/api/admin', adminRouter)`（T010 依賴 T009 完成）
-- [ ] T011 [P] [US1] 建立 `frontend/src/views/admin/AdminLogin.vue`（登入表單：username input、password input、登入按鈕；點擊登入呼叫 `adminApi.post('/api/admin/login', { username, password })`；成功 → 將 token 存入 `localStorage.admin_token`，`router.push('/admin')`；失敗 → 顯示「帳號或密碼錯誤」錯誤訊息；按鈕提交中顯示 disabled + 載入文字；樣式簡潔置中，支援手機版）
+- [x] T008 [P] [US1] 實作 admin login controller 於 `backend/src/controllers/adminController.ts`（`loginAdmin` 函式：讀取並 `JSON.parse(process.env.ADMIN_CREDENTIALS!)`；比對 `credentials[username] === password`；不符合回傳 HTTP 401 `INVALID_CREDENTIALS`；符合則以 `jwt.sign({ username }, process.env.JWT_SECRET!, { expiresIn: '24h' })` 簽發 token，回傳 `{ data: { token, username } }` HTTP 200）
+- [x] T009 [P] [US1] 建立 admin 路由檔案 `backend/src/routes/admin.ts`（`POST /login` → `loginAdmin`，不掛 adminAuth；`GET /rsvp`、`POST /rsvp`、`PUT /rsvp/:id`、`DELETE /rsvp/:id` 先以 `adminAuth` middleware 保護，controller 函式佔位 stub 回傳 `{ data: {} }` HTTP 200，待 Phase 4 補全）
+- [x] T010 [US1] 更新 `backend/src/app.ts`，在 `app.use('/api', apiRouter)` 之後新增 `import adminRouter from './routes/admin'` 與 `app.use('/api/admin', adminRouter)`（T010 依賴 T009 完成）
+- [x] T011 [P] [US1] 建立 `frontend/src/views/admin/AdminLogin.vue`（登入表單：username input、password input、登入按鈕；點擊登入呼叫 `adminApi.post('/api/admin/login', { username, password })`；成功 → 將 token 存入 `localStorage.admin_token`，`router.push('/admin')`；失敗 → 顯示「帳號或密碼錯誤」錯誤訊息；按鈕提交中顯示 disabled + 載入文字；樣式簡潔置中，支援手機版）
 
 **Checkpoint**: US1 Independent Test 完整通過；`POST /api/admin/login` 以無效 token 呼叫 `/api/admin/rsvp` 回傳 401
 
@@ -61,15 +61,15 @@
 
 **Independent Test**: 登入後台，確認列表顯示全部 RSVP；統計摘要出席人數正確；搜尋輸入姓名 / 電話可即時篩選；點「新增」開啟 Modal 填寫後送出，確認新資料出現；點「修改」進入 inline 編輯，儲存確認更新；點「刪除」確認後消失；手機（375px）以卡片呈現，桌機（1440px）以表格呈現。
 
-- [ ] T012 [P] [US2] 建立 Zod partial update schema 於 `backend/src/validation/adminRsvpSchema.ts`（基於 `rsvpSchema` 的 Partial 版本供 PUT 使用；所有欄位選填；保留電話格式、guestCount 範圍、relationshipType 依賴 relationshipSide 的驗證邏輯）
-- [ ] T013 [P] [US2] 建立新增 RSVP Modal 元件於 `frontend/src/components/admin/RsvpModal.vue`（props：`visible: boolean`、`emit: close / saved`；表單欄位與前台 RsvpSection 相同（name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；送出呼叫 `adminApi.post('/api/admin/rsvp', payload)`；成功 emit `saved(newRecord)` 並由父元件關閉 Modal；失敗在 Modal 內顯示錯誤訊息；點擊 Modal 外部或「取消」emit `close`；支援手機版全寬顯示）
-- [ ] T014 [US2] 補全 admin RSVP controller 函式於 `backend/src/controllers/adminController.ts`（T014 依賴 T012 完成）：
+- [x] T012 [P] [US2] 建立 Zod partial update schema 於 `backend/src/validation/adminRsvpSchema.ts`（基於 `rsvpSchema` 的 Partial 版本供 PUT 使用；所有欄位選填；保留電話格式、guestCount 範圍、relationshipType 依賴 relationshipSide 的驗證邏輯）
+- [x] T013 [P] [US2] 建立新增 RSVP Modal 元件於 `frontend/src/components/admin/RsvpModal.vue`（props：`visible: boolean`、`emit: close / saved`；表單欄位與前台 RsvpSection 相同（name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；送出呼叫 `adminApi.post('/api/admin/rsvp', payload)`；成功 emit `saved(newRecord)` 並由父元件關閉 Modal；失敗在 Modal 內顯示錯誤訊息；點擊 Modal 外部或「取消」emit `close`；支援手機版全寬顯示）
+- [x] T014 [US2] 補全 admin RSVP controller 函式於 `backend/src/controllers/adminController.ts`（T014 依賴 T012 完成）：
   - `listRsvp`：`prisma.rSVPSubmission.findMany({ orderBy: { createdAt: 'desc' } })` → `{ data: [...] }`
   - `createRsvp`：以 `rsvpSchema`（完整驗證）解析 body → `prisma.rSVPSubmission.create()` → 201；P2002 → 409
   - `updateRsvp`：以 `adminRsvpSchema`（partial）解析 body → `prisma.rSVPSubmission.update({ where: { id } })`；id 不存在 → 404；P2002 → 409
   - `deleteRsvp`：`prisma.rSVPSubmission.delete({ where: { id } })`；id 不存在 → 404 → 成功回傳 204
-- [ ] T015 [US2] 更新 `backend/src/routes/admin.ts`，將 Phase 3 的 stub 函式替換為 T014 實作的正式 controller 函式（`listRsvp`、`createRsvp`、`updateRsvp`、`deleteRsvp`）（T015 依賴 T014 完成）
-- [ ] T016 [US2] 建立 `frontend/src/views/admin/AdminDashboard.vue`（T016 依賴 T013 完成）：
+- [x] T015 [US2] 更新 `backend/src/routes/admin.ts`，將 Phase 3 的 stub 函式替換為 T014 實作的正式 controller 函式（`listRsvp`、`createRsvp`、`updateRsvp`、`deleteRsvp`）（T015 依賴 T014 完成）
+- [x] T016 [US2] 建立 `frontend/src/views/admin/AdminDashboard.vue`（T016 依賴 T013 完成）：
   - **資料載入**：`onMounted` 呼叫 `adminApi.get('/api/admin/rsvp')`，結果存入 `rsvpList` reactive ref
   - **統計摘要**：computed 計算出席筆數、不克出席筆數、總出席人數（guestCount 加總），顯示於列表上方三格卡片
   - **即時搜尋**：搜尋 input，computed `filteredList` 依姓名或電話 keyword 篩選；無結果顯示「找不到符合的紀錄」
