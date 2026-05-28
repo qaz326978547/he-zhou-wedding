@@ -57,30 +57,38 @@ ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}
 
 ---
 
-## RSVPSubmission（既有，無需變更 Schema）
+## RSVPSubmission（RSVP v2 後更新）
+
+> Schema 已於 RSVP v2 重構（migration `20260529000001_add_highchair_count`）：移除 `guestCount`、`notes`；新增人數、兒童椅、紙本喜帖相關欄位。
 
 後台新增以下操作，全部需 JWT 驗證：
 
 | 操作 | 說明 |
 |------|------|
 | 查詢全部 | `prisma.rSVPSubmission.findMany({ orderBy: { createdAt: 'desc' } })` |
-| 新增 | `prisma.rSVPSubmission.create()`，執行相同 Zod 驗證規則 |
-| 修改 | `prisma.rSVPSubmission.update({ where: { id } })`，部分欄位可修改 |
+| 新增 | `prisma.rSVPSubmission.create()`，使用 `adminCreateRsvpSchema`（attending 後端注入 true） |
+| 修改 | `prisma.rSVPSubmission.update({ where: { id } })`，使用 `adminRsvpSchema`（所有欄位 Partial） |
 | 刪除 | `prisma.rSVPSubmission.delete({ where: { id } })` |
 
-### 新增 / 修改欄位允許範圍
+### RSVP v2 欄位一覽
 
-| 欄位 | 新增 | 修改 | 驗證規則 |
-|------|------|------|----------|
-| `name` | ✅ 必填 | ✅ | 最少 1 字元 |
-| `phone` | ✅ 必填 | ✅ | 台灣電話格式；唯一性驗證（Prisma P2002） |
-| `attending` | ✅ 必填 | ✅ | boolean |
-| `guestCount` | ✅ 必填 | ✅ | attending=true 時 1–10；false 時 0 |
-| `relationshipSide` | ✅ 選填 | ✅ | `groom` / `bride` / null |
-| `relationshipType` | ✅ 選填 | ✅ | `relative` / `friend` / null；需 relationshipSide |
-| `dietaryPreference` | ✅ 選填 | ✅ | 五選一 enum，預設 `regular` |
-| `notes` | ✅ 選填 | ✅ | 最多 300 字元 |
-| `notificationEmailSent` | ❌ | ✅ | boolean（主辦人可手動標記） |
+| 欄位 | 型別 | 新增（POST） | 修改（PUT） | 驗證規則 |
+|------|------|-------------|-------------|----------|
+| `name` | String | ✅ 必填 | ✅ | 最少 1 字元 |
+| `phone` | String | ✅ 必填 | ✅ | 台灣手機（09 開頭）或市話格式；唯一性驗證（Prisma P2002） |
+| `attending` | Boolean | ❌ 後端注入 true | ✅ | 後台 POST 固定為 true；PUT 可修改 |
+| `adultCount` | Int? | ✅ 選填 | ✅ | 1–10；**null 表示人數待確認**（admin 路由允許；前台路由出席時必填） |
+| `childCount` | Int? | ✅ 選填 | ✅ | 0–10；預設 0 |
+| `needsHighchair` | Boolean? | ✅ 選填 | ✅ | childCount > 0 時有意義；null 表示未確認 |
+| `highchairCount` | Int? | ✅ 選填 | ✅ | 1–10；needsHighchair = true 時有意義 |
+| `relationshipSide` | String? | ✅ 選填 | ✅ | `groom` / `bride` / null |
+| `relationshipType` | String? | ✅ 選填 | ✅ | `relative` / `friend` / null；需先設定 relationshipSide |
+| `dietaryPreference` | String | ✅ 選填 | ✅ | `regular` / `vegetarian` 兩選一；預設 `regular` |
+| `needsInvitation` | Boolean | ✅ 選填 | ✅ | 預設 false |
+| `invitationName` | String? | ✅ 選填 | ✅ | needsInvitation = true 時有意義 |
+| `invitationPhone` | String? | ✅ 選填 | ✅ | needsInvitation = true 時有意義 |
+| `invitationAddress` | String? | ✅ 選填 | ✅ | needsInvitation = true 時有意義 |
+| `notificationEmailSent` | Boolean | ❌ | ✅ | 主辦人可手動標記；預設 false |
 
 ---
 
