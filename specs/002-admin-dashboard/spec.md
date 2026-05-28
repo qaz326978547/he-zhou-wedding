@@ -12,7 +12,7 @@
 ### Session 2026-05-28
 
 - Q: 修改 RSVP 時編輯介面樣式為何？ → A: Inline 直接在表格列上編輯（每個欄位變 input，儲存後恢復顯示文字）
-- Q: 後台列表頁是否顯示統計摘要？ → A: 顯示；包含出席筆數、不克出席筆數、總出席人數（guestCount 加總）
+- Q: 後台列表頁是否顯示統計摘要？ → A: 顯示；包含總回覆筆數、總出席人數（guestCount 加總）（出席狀態欄位已隱藏，故不顯示出席筆數 / 不克出席筆數）
 - Q: 列表是否需要搜尋 / 篩選功能？ → A: 支援前端即時搜尋（依姓名或電話關鍵字即時篩選，不需額外 API）
 - Q: 後台是否需要支援行動裝置？ → A: 是；以手機版順暢度為主（Mobile-First），PC 版一目瞭然；手機用卡片佈局，桌機用完整表格
 - Q: 新增 RSVP 的表單呈現方式為何？ → A: Modal 彈窗（點擊「新增」按鈕後開啟彈窗，填寫完送出後關閉）
@@ -57,7 +57,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** 主辦人已登入，**When** 進入後台首頁，**Then** MUST 顯示所有 RSVP 提交紀錄，每筆資料包含：編號、姓名、電話、出席狀態、出席人數、賓桌歸屬、關係類型、飲食偏好、備註、提交時間（UTC+8）、通知信發送狀態。
+1. **Given** 主辦人已登入，**When** 進入後台首頁，**Then** MUST 顯示所有 RSVP 提交紀錄，每筆資料包含：編號、姓名、電話、出席人數、賓桌歸屬、關係類型、飲食偏好、備註、提交時間（UTC+8）、通知信發送狀態（出席狀態欄位於後台 UI 隱藏，但資料仍儲存於資料庫）。
 2. **Given** 主辦人在列表頁，**When** 點擊「新增」，**Then** MUST 開啟 Modal 彈窗顯示新增表單；填寫並送出後 Modal 關閉，新資料 MUST 即時出現在列表中。
 3. **Given** 主辦人在某筆 RSVP 旁點擊「修改」，**When** 該列進入 inline 編輯模式（各欄位變為 input），主辦人修改後點擊「儲存」，**Then** 列表中該筆資料 MUST 即時更新並恢復為文字顯示。
 4. **Given** 主辦人點擊某筆 RSVP 的「刪除」，**When** 確認刪除，**Then** 該筆資料 MUST 從列表與資料庫中移除。
@@ -98,21 +98,20 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 
 #### FR-A005 RSVP 列表與統計摘要
 後台首頁 MUST 在列表上方顯示統計摘要卡片，包含：
-- 出席筆數（attending=true 的 RSVP 數量）
-- 不克出席筆數（attending=false 的 RSVP 數量）
+- 總回覆筆數（所有 RSVP 提交數量）
 - 總出席人數（所有 guestCount 加總）
 
 統計數字由前端從已載入的列表資料即時計算（不需額外 API）。
 
 列表上方 MUST 提供即時搜尋輸入框，依姓名或電話號碼關鍵字即時篩選列表（前端 computed，不呼叫額外 API）；無符合結果時顯示「找不到符合的紀錄」。
 
-列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes、createdAt（UTC+8）、notificationEmailSent。
+列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes、createdAt（UTC+8）、notificationEmailSent。出席狀態（attending）欄位儲存於資料庫但不顯示於後台 UI。
 
 #### FR-A006 新增 RSVP
-主辦人點擊「新增」MUST 開啟 Modal 彈窗，表單欄位與前台 RSVP 表單一致（name、phone、attending、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；送出成功後 MUST 自動關閉 Modal 並將新資料插入列表頂端；後端 MUST 執行相同的資料驗證規則（電話格式、guestCount 範圍等）；點擊 Modal 外部或「取消」按鈕可關閉 Modal（未送出的資料不儲存）。
+主辦人點擊「新增」MUST 開啟 Modal 彈窗，表單欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes）；attending 欄位不顯示於表單，預設為 true；送出成功後 MUST 自動關閉 Modal 並將新資料插入列表頂端；後端 MUST 執行相同的資料驗證規則（電話格式、guestCount 範圍等）；點擊 Modal 外部或「取消」按鈕可關閉 Modal（未送出的資料不儲存）。
 
 #### FR-A007 修改 RSVP
-主辦人 MUST 可修改任一筆 RSVP 的任何欄位；點擊「修改」後該列進入 inline 編輯模式，各欄位直接在表格列上變為可編輯 input；點擊「儲存」送出後恢復文字顯示；點擊「取消」放棄修改回復原始內容；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
+主辦人 MUST 可修改任一筆 RSVP 的可見欄位；點擊「修改」後該列進入 inline 編輯模式，各欄位直接在表格列上變為可編輯 input；可編輯欄位為（name、phone、guestCount、relationshipSide、relationshipType、dietaryPreference、notes），attending 欄位不顯示於編輯介面（送出時保留原值）；點擊「儲存」送出後恢復文字顯示；點擊「取消」放棄修改回復原始內容；後端 MUST 驗證修改後資料的合法性；電話改為已存在的號碼時 MUST 回傳錯誤。
 
 #### FR-A008 刪除 RSVP
 主辦人 MUST 可刪除任一筆 RSVP；刪除前 MUST 顯示確認對話框，確認後資料從資料庫永久移除。
@@ -122,6 +121,9 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 
 #### FR-A010 後台不影響前台
 後台功能 MUST 與前台婚禮網站完全獨立；後台操作（含刪除）MUST NOT 影響前台正常運作。
+
+#### FR-A011 匯出 CSV
+主辦人 MUST 可點擊「匯出 CSV」按鈕，下載包含所有 RSVP 資料的 CSV 檔案；檔名格式為 `RSVP_YYYYMMDD.csv`；CSV 欄位包含：編號、姓名、電話、出席人數、賓桌歸屬、關係類型、飲食偏好、備註、提交時間（UTC+8）、通知信已發送；檔案末段附統計摘要區塊（總回覆筆數、總出席人數）；檔案加 UTF-8 BOM 確保 Excel 正確顯示中文。匯出資料以前端已載入的完整列表為來源（不需額外 API）。
 
 ### Key Entities
 
@@ -158,6 +160,6 @@ JWT token MUST 儲存於前端（localStorage 或 httpOnly cookie）；有效期
 
 - 後台角色權限分級（兩位主辦人權限相同）
 - 操作紀錄（audit log）
-- 批次刪除或匯出 CSV
+- 批次刪除
 - 忘記密碼 / 修改密碼功能
 - 後台黑暗模式
