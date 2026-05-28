@@ -12,11 +12,16 @@ model RSVPSubmission {
   name                    String
   phone                   String    @unique
   attending               Boolean
-  guestCount              Int?
+  adultCount              Int?
+  childCount              Int?
+  needsHighchair          Boolean?
   relationshipSide        String?
   relationshipType        String?
   dietaryPreference       String    @default("regular")
-  notes                   String?   @db.VarChar(300)
+  needsInvitation         Boolean   @default(false)
+  invitationName          String?
+  invitationPhone         String?
+  invitationAddress       String?
   notificationEmailSent   Boolean   @default(false)
   notificationEmailSentAt DateTime?
   notificationEmailError  String?

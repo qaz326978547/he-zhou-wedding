@@ -78,8 +78,13 @@ while (day <= 30) {
       </div>
     </div>
 
-    <p class="mt-12 text-wedding-mist font-display tracking-[0.15em] text-sm">
-      Saturday, November 14, 2026
-    </p>
+    <div class="mt-12 space-y-2 text-center">
+      <p class="text-wedding-charcoal/70 font-display tracking-[0.15em] text-sm">
+        Nov 14, 2026｜Saturday
+      </p>
+      <p class="text-wedding-gold font-display tracking-[0.2em] text-xs">
+        12:30 PM
+      </p>
+    </div>
   </section>
 </template>

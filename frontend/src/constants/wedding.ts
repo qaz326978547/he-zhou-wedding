@@ -1,7 +1,7 @@
 export const WEDDING = {
   couple: {
-    groom: 'HE Bean',
-    bride: 'Katherine Zhou',
+    groom: 'Bean',
+    bride: 'Katherine',
   },
   date: '2026-11-14',
   dateDisplay: '2026 年 11 月 14 日（星期六）',

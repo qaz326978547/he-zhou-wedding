@@ -32,11 +32,16 @@ export async function submitRsvp(req: Request, res: Response, next: NextFunction
         name: parsed.data.name,
         phone: parsed.data.phone,
         attending: parsed.data.attending,
-        guestCount: parsed.data.attending ? parsed.data.guestCount : 0,
+        adultCount: parsed.data.attending ? (parsed.data.adultCount ?? null) : null,
+        childCount: parsed.data.attending ? (parsed.data.childCount ?? null) : null,
+        needsHighchair: parsed.data.attending && parsed.data.childCount ? (parsed.data.needsHighchair ?? null) : null,
         relationshipSide: parsed.data.relationshipSide ?? null,
         relationshipType: parsed.data.relationshipType ?? null,
         dietaryPreference: parsed.data.dietaryPreference ?? 'regular',
-        notes: parsed.data.notes ?? null,
+        needsInvitation: parsed.data.needsInvitation ?? false,
+        invitationName: parsed.data.needsInvitation ? (parsed.data.invitationName ?? null) : null,
+        invitationPhone: parsed.data.needsInvitation ? (parsed.data.invitationPhone ?? null) : null,
+        invitationAddress: parsed.data.needsInvitation ? (parsed.data.invitationAddress ?? null) : null,
       },
     })
 

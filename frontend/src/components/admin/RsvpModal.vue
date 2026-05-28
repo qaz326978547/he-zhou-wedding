@@ -23,9 +23,29 @@
             </div>
           </div>
 
-          <div>
-            <label class="block text-xs text-gray-500 mb-1">出席人數 <span class="text-gray-400">（可留空）</span></label>
-            <input v-model="form.guestCount" type="number" min="0" max="10" placeholder="留空表示待確認" class="input-field" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">大人幾位 <span class="text-gray-400">（可留空）</span></label>
+              <select v-model="form.adultCount" class="input-field">
+                <option value="">-- 待確認 --</option>
+                <option v-for="n in 10" :key="n" :value="n">{{ n }} 位</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">小孩幾位 <span class="text-gray-400">（12歲以下）</span></label>
+              <select v-model="form.childCount" class="input-field">
+                <option v-for="n in 11" :key="n - 1" :value="n - 1">{{ n - 1 }} 位</option>
+              </select>
+            </div>
+          </div>
+
+          <div v-if="form.childCount > 0">
+            <label class="block text-xs text-gray-500 mb-1">兒童椅</label>
+            <select v-model="form.needsHighchair" class="input-field">
+              <option :value="null">-- 未確認 --</option>
+              <option :value="true">需要</option>
+              <option :value="false">不需要</option>
+            </select>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -50,34 +70,41 @@
           <div>
             <label class="block text-xs text-gray-500 mb-1">飲食偏好</label>
             <select v-model="form.dietaryPreference" class="input-field">
-              <option value="regular">一般</option>
+              <option value="regular">葷食</option>
               <option value="vegetarian">素食</option>
-              <option value="no_beef">不吃牛</option>
-              <option value="no_pork">不吃豬</option>
-              <option value="other">其他</option>
             </select>
           </div>
 
           <div>
-            <label class="block text-xs text-gray-500 mb-1">備註</label>
-            <textarea v-model="form.notes" rows="2" maxlength="300" class="input-field resize-none"></textarea>
+            <label class="block text-xs text-gray-500 mb-1">紙本喜帖</label>
+            <select v-model="form.needsInvitation" class="input-field">
+              <option :value="false">不需要</option>
+              <option :value="true">需要</option>
+            </select>
           </div>
+
+          <template v-if="form.needsInvitation">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">收件人姓名</label>
+              <input v-model="form.invitationName" type="text" class="input-field" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">收件人電話</label>
+              <input v-model="form.invitationPhone" type="tel" class="input-field" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">收件地址</label>
+              <input v-model="form.invitationAddress" type="text" class="input-field" />
+            </div>
+          </template>
 
           <p v-if="errorMsg" class="text-red-500 text-sm">{{ errorMsg }}</p>
 
           <div class="flex gap-3 pt-2">
-            <button
-              type="button"
-              @click="$emit('close')"
-              class="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2.5 text-sm hover:bg-gray-50 transition"
-            >
+            <button type="button" @click="$emit('close')" class="flex-1 border border-gray-300 text-gray-700 rounded-lg py-2.5 text-sm hover:bg-gray-50 transition">
               取消
             </button>
-            <button
-              type="submit"
-              :disabled="loading"
-              class="flex-1 bg-gray-800 text-white rounded-lg py-2.5 text-sm hover:bg-gray-700 disabled:opacity-50 transition"
-            >
+            <button type="submit" :disabled="loading" class="flex-1 bg-gray-800 text-white rounded-lg py-2.5 text-sm hover:bg-gray-700 disabled:opacity-50 transition">
               {{ loading ? '送出中...' : '新增' }}
             </button>
           </div>
@@ -100,12 +127,16 @@ const emit = defineEmits<{
 const defaultForm = () => ({
   name: '',
   phone: '',
-  attending: true,
-  guestCount: '' as number | '',
+  adultCount: '' as number | '',
+  childCount: 0,
+  needsHighchair: null as boolean | null,
   relationshipSide: '',
   relationshipType: '',
   dietaryPreference: 'regular',
-  notes: '',
+  needsInvitation: false,
+  invitationName: '',
+  invitationPhone: '',
+  invitationAddress: '',
 })
 
 const form = ref(defaultForm())
@@ -126,13 +157,19 @@ async function handleSubmit() {
     const payload: any = {
       name: form.value.name,
       phone: form.value.phone,
-      attending: form.value.attending,
-      guestCount: form.value.guestCount === '' ? null : Number(form.value.guestCount),
+      adultCount: form.value.adultCount === '' ? null : Number(form.value.adultCount),
+      childCount: Number(form.value.childCount),
       dietaryPreference: form.value.dietaryPreference,
+      needsInvitation: form.value.needsInvitation,
     }
+    if (form.value.childCount > 0) payload.needsHighchair = form.value.needsHighchair
     if (form.value.relationshipSide) payload.relationshipSide = form.value.relationshipSide
     if (form.value.relationshipType && form.value.relationshipSide) payload.relationshipType = form.value.relationshipType
-    if (form.value.notes) payload.notes = form.value.notes
+    if (form.value.needsInvitation) {
+      payload.invitationName = form.value.invitationName
+      payload.invitationPhone = form.value.invitationPhone
+      payload.invitationAddress = form.value.invitationAddress
+    }
 
     const res = await adminApi.post('/api/admin/rsvp', payload)
     emit('saved', res.data.data)
