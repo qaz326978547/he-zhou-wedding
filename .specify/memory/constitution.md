@@ -1,19 +1,16 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version change: 1.0.1 → 1.0.2
+Version change: 1.0.2 → 1.1.0
 Modified principles: none renamed
-Modified sections: 資產管理 — 目錄路徑由 frontend/public/images/ 修正為 frontend/public/assets/；新增 music/ 與 line/ 子目錄
-Added sections: none
+Modified sections: none
+Added sections: VI. 文件同步原則 (Documentation Synchronization Principle)
 Removed sections: none
 Templates updated:
-  - .specify/templates/plan-template.md ✅ (無涉及資產路徑，無需修改)
-  - .specify/templates/spec-template.md ✅ (無涉及資產路徑，無需修改)
-  - .specify/templates/tasks-template.md ✅ (無涉及資產路徑，無需修改)
-  - CLAUDE.md ✅ (已使用 assets/ 路徑，與本次修正一致)
-  - specs/001-wedding-site-v1/spec.md ✅ (使用 assets/，與本次修正一致)
-  - specs/001-wedding-site-v1/plan.md ✅ (使用 assets/，與本次修正一致)
-  - specs/001-wedding-site-v1/tasks.md ✅ (使用 assets/，與本次修正一致)
+  - .specify/templates/plan-template.md ✅ (無涉及文件同步規則，無需修改)
+  - .specify/templates/spec-template.md ✅ (無涉及文件同步規則，無需修改)
+  - .specify/templates/tasks-template.md ✅ (無涉及文件同步規則，無需修改)
+  - CLAUDE.md ✅ (已有 Spec Workflow 說明，與本次新增原則一致)
 Deferred TODOs: none
 -->
 
@@ -54,6 +51,23 @@ Backend MUST 啟用 CORS，並允許前端網域 `https://hezhouwedding.com` 存
 Commit MUST 以小步驟進行，每個 commit 對應一個邏輯單元。
 複雜度提升 MUST 有明確的業務理由；無充分理由時 MUST 選擇最簡實作。
 
+### VI. 文件同步原則 (Documentation Synchronization Principle)
+
+任何需求變更、功能調整、欄位變更、API 變更、資料庫 schema 變更、驗證邏輯變更、前後台流程變更，MUST 同步更新相關 Spec Kit markdown 文件。
+
+當需求變更時，MUST 先檢查並更新以下文件（視變更範圍而定）：
+`spec.md`、`plan.md`、`tasks.md`、`research.md`、`data-model.md`、`contracts/*`、`quickstart.md`；若變更影響專案原則，亦須更新 `constitution.md`。
+
+執行規則：
+1. 禁止只修改程式碼而不更新對應文件。
+2. 禁止在相關 `.md` 文件同步完成前進入 implement。
+3. 每次需求變更時，MUST 先列出受影響文件清單。
+4. 每次需求變更時，MUST 列出影響分析，涵蓋 frontend、backend、database、API、validation、admin、deployment 是否受影響。
+5. `tasks.md` MUST 與最新 `spec.md` 和 `plan.md` 保持一致。
+6. API contract 或 data model 有變更時，`contracts/*` 與 `data-model.md` MUST 同步更新。
+7. 使用者要求「只更新文件」時，完成 markdown 更新後 MUST 停止，不得實作程式碼。
+8. 更新 `tasks.md` 時，MUST 保留仍有效的已完成任務，移除不再適用的任務，新增本次變更所需任務。
+
 ## 部署架構 (Deployment Architecture)
 
 專案部署於 [Zeabur](https://zeabur.com) 平台：
@@ -87,4 +101,4 @@ frontend/public/assets/
 版本號規則：MAJOR 對應原則移除或不相容變更；MINOR 對應新增原則或重大擴充；PATCH 對應措辭釐清或非語義修正。
 執行期開發指引請參閱 `CLAUDE.md`。
 
-**Version**: 1.0.2 | **Ratified**: 2026-05-12 | **Last Amended**: 2026-05-19
+**Version**: 1.1.0 | **Ratified**: 2026-05-12 | **Last Amended**: 2026-05-29
