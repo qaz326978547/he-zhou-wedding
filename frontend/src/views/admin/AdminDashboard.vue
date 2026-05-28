@@ -13,14 +13,10 @@
 
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-5">
       <!-- Stats -->
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
-          <div class="text-2xl font-bold text-green-600">{{ stats.attending }}</div>
-          <div class="text-xs text-gray-500 mt-1">出席</div>
-        </div>
-        <div class="bg-white rounded-xl shadow-sm p-4 text-center">
-          <div class="text-2xl font-bold text-red-400">{{ stats.notAttending }}</div>
-          <div class="text-xs text-gray-500 mt-1">不克出席</div>
+          <div class="text-2xl font-bold text-gray-800">{{ rsvpList.length }}</div>
+          <div class="text-xs text-gray-500 mt-1">總回覆筆數</div>
         </div>
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
           <div class="text-2xl font-bold text-blue-600">{{ stats.totalGuests }}</div>
@@ -70,13 +66,6 @@
               <div>
                 <label class="text-xs text-gray-400">電話</label>
                 <input v-model="editForm.phone" class="edit-input" />
-              </div>
-              <div>
-                <label class="text-xs text-gray-400">出席</label>
-                <select v-model="editForm.attending" class="edit-input">
-                  <option :value="true">出席</option>
-                  <option :value="false">不克出席</option>
-                </select>
               </div>
               <div>
                 <label class="text-xs text-gray-400">人數</label>
@@ -133,15 +122,7 @@
           </template>
           <template v-else>
             <div class="flex justify-between items-start">
-              <div>
-                <span class="font-semibold text-gray-800">{{ item.name }}</span>
-                <span
-                  class="ml-2 text-xs px-1.5 py-0.5 rounded"
-                  :class="item.attending ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'"
-                >
-                  {{ item.attending ? '出席' : '不克出席' }}
-                </span>
-              </div>
+              <span class="font-semibold text-gray-800">{{ item.name }}</span>
               <span class="text-xs text-gray-400">{{ formatDate(item.createdAt) }}</span>
             </div>
             <div class="text-sm text-gray-500 space-y-0.5">
@@ -183,7 +164,6 @@
             <tr>
               <th class="px-4 py-3 text-left">姓名</th>
               <th class="px-4 py-3 text-left">電話</th>
-              <th class="px-4 py-3 text-left">出席</th>
               <th class="px-4 py-3 text-left">人數</th>
               <th class="px-4 py-3 text-left">賓桌</th>
               <th class="px-4 py-3 text-left">關係</th>
@@ -195,7 +175,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="filteredList.length === 0">
-              <td colspan="10" class="px-4 py-8 text-center text-gray-400">找不到符合的紀錄</td>
+              <td colspan="9" class="px-4 py-8 text-center text-gray-400">找不到符合的紀錄</td>
             </tr>
             <tr
               v-for="item in filteredList"
@@ -205,12 +185,6 @@
               <template v-if="editingId === item.id">
                 <td class="px-2 py-2"><input v-model="editForm.name" class="edit-input w-24" /></td>
                 <td class="px-2 py-2"><input v-model="editForm.phone" class="edit-input w-32" /></td>
-                <td class="px-2 py-2">
-                  <select v-model="editForm.attending" class="edit-input w-24">
-                    <option :value="true">出席</option>
-                    <option :value="false">不克出席</option>
-                  </select>
-                </td>
                 <td class="px-2 py-2"><input v-model.number="editForm.guestCount" type="number" min="0" max="10" class="edit-input w-16" /></td>
                 <td class="px-2 py-2">
                   <select v-model="editForm.relationshipSide" class="edit-input w-24">
@@ -260,14 +234,6 @@
               <template v-else>
                 <td class="px-4 py-3 font-medium text-gray-800">{{ item.name }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.phone }}</td>
-                <td class="px-4 py-3">
-                  <span
-                    class="text-xs px-1.5 py-0.5 rounded"
-                    :class="item.attending ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-500'"
-                  >
-                    {{ item.attending ? '出席' : '不克出席' }}
-                  </span>
-                </td>
                 <td class="px-4 py-3 text-gray-600">{{ item.guestCount }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipSide === 'groom' ? '新郎方' : item.relationshipSide === 'bride' ? '新娘方' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipType === 'relative' ? '親戚' : item.relationshipType === 'friend' ? '朋友' : '--' }}</td>
@@ -437,7 +403,7 @@ function csvEscape(val: any): string {
 
 function exportCsv() {
   const headers = [
-    '編號', '姓名', '電話', '出席狀態', '出席人數',
+    '編號', '姓名', '電話', '出席人數',
     '賓桌歸屬', '關係類型', '飲食偏好', '備註',
     '提交時間（UTC+8）', '通知信已發送',
   ]
@@ -451,7 +417,6 @@ function exportCsv() {
     r.id,
     r.name,
     r.phone,
-    r.attending ? '出席' : '不克出席',
     r.guestCount,
     sideLabel(r.relationshipSide),
     typeLabel(r.relationshipType),

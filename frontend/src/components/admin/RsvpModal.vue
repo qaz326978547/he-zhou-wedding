@@ -23,18 +23,9 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">出席狀態 *</label>
-              <select v-model="form.attending" class="input-field">
-                <option :value="true">出席</option>
-                <option :value="false">不克出席</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs text-gray-500 mb-1">出席人數 *</label>
-              <input v-model.number="form.guestCount" type="number" min="0" max="10" class="input-field" />
-            </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">出席人數 *</label>
+            <input v-model.number="form.guestCount" type="number" min="0" max="10" class="input-field" />
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
