@@ -20,7 +20,7 @@
 - [x] T001 在 `backend/` 安裝新相依套件：`npm install jsonwebtoken && npm install --save-dev @types/jsonwebtoken`
 - [x] T002 [P] 在 `frontend/` 安裝 Vue Router：`npm install vue-router@4`
 - [x] T003 [P] 更新 `backend/.env.example`，新增 `JWT_SECRET=your-random-secret-at-least-32-chars` 與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}` 兩個欄位
-- [x] T003a [P] 更新 `backend/prisma/schema.prisma`，將 `guestCount Int @default(0)` 改為 `guestCount Int?`（nullable），執行 migration `20260528160300_allow_nullable_guest_count`；後台 admin 路由允許 guestCount 為 null，公開前台驗證規則不變（C2 追蹤補充）
+- [x] T003a [P] 更新 `backend/prisma/schema.prisma` 至 RSVP v2：移除 `guestCount`、`notes` 欄位；新增 `adultCount Int?`、`childCount Int?`、`needsHighchair Boolean?`、`highchairCount Int?`、`needsInvitation Boolean @default(false)`、`invitationName String?`、`invitationPhone String?`、`invitationAddress String?`；執行對應 migration（`20260529000001_add_highchair_count`）；後台 admin 路由允許 adultCount 為 null，公開前台驗證規則不變
 
 **Checkpoint**: `backend/node_modules/jsonwebtoken` 與 `frontend/node_modules/vue-router` 均存在；`.env.example` 包含新欄位
 
