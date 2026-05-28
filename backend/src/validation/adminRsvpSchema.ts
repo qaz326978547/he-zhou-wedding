@@ -11,7 +11,7 @@ export const adminRsvpSchema = z
     name: z.string().min(1, '請填寫姓名').optional(),
     phone: z.string().regex(TAIWAN_PHONE, '請輸入台灣手機（09 開頭）或市話格式').optional(),
     attending: z.boolean().optional(),
-    guestCount: z.number().int().optional(),
+    guestCount: z.number().int().nullable().optional(),
     relationshipSide: SIDE.optional(),
     relationshipType: REL_TYPE.optional(),
     dietaryPreference: DIETARY.optional(),
@@ -19,11 +19,10 @@ export const adminRsvpSchema = z
   })
   .refine(
     (d) => {
-      if (d.attending === undefined || d.guestCount === undefined) return true
-      if (d.attending) return d.guestCount >= 1 && d.guestCount <= 10
-      return d.guestCount === 0
+      if (d.guestCount === undefined || d.guestCount === null) return true
+      return d.guestCount >= 0 && d.guestCount <= 10
     },
-    { message: '出席人數範圍無效（出席時 1–10，不克出席時為 0）', path: ['guestCount'] },
+    { message: '出席人數範圍無效（0–10，或留空表示待確認）', path: ['guestCount'] },
   )
   .refine(
     (d) => !(d.relationshipType && !d.relationshipSide),

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "RSVPSubmission" ALTER COLUMN "guestCount" DROP NOT NULL,
+ALTER COLUMN "guestCount" DROP DEFAULT;

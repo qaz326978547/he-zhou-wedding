@@ -24,8 +24,8 @@
           </div>
 
           <div>
-            <label class="block text-xs text-gray-500 mb-1">出席人數 *</label>
-            <input v-model.number="form.guestCount" type="number" min="0" max="10" class="input-field" />
+            <label class="block text-xs text-gray-500 mb-1">出席人數 <span class="text-gray-400">（可留空）</span></label>
+            <input v-model="form.guestCount" type="number" min="0" max="10" placeholder="留空表示待確認" class="input-field" />
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -101,7 +101,7 @@ const defaultForm = () => ({
   name: '',
   phone: '',
   attending: true,
-  guestCount: 1,
+  guestCount: '' as number | '',
   relationshipSide: '',
   relationshipType: '',
   dietaryPreference: 'regular',
@@ -127,7 +127,7 @@ async function handleSubmit() {
       name: form.value.name,
       phone: form.value.phone,
       attending: form.value.attending,
-      guestCount: form.value.guestCount,
+      guestCount: form.value.guestCount === '' ? null : Number(form.value.guestCount),
       dietaryPreference: form.value.dietaryPreference,
     }
     if (form.value.relationshipSide) payload.relationshipSide = form.value.relationshipSide

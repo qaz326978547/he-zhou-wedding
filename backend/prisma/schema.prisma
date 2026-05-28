@@ -12,7 +12,7 @@ model RSVPSubmission {
   name                    String
   phone                   String    @unique
   attending               Boolean
-  guestCount              Int       @default(0)
+  guestCount              Int?
   relationshipSide        String?
   relationshipType        String?
   dietaryPreference       String    @default("regular")

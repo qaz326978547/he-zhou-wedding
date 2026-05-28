@@ -12,6 +12,11 @@
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-5">
+      <!-- Load error -->
+      <div v-if="loadError" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
+        資料載入失敗，請重新整理頁面
+      </div>
+
       <!-- Stats -->
       <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
@@ -127,7 +132,7 @@
             </div>
             <div class="text-sm text-gray-500 space-y-0.5">
               <div>電話：{{ item.phone }}</div>
-              <div>人數：{{ item.guestCount }} 人</div>
+              <div>人數：{{ item.guestCount ?? '--' }}{{ item.guestCount != null ? ' 人' : '' }}</div>
               <div v-if="item.relationshipSide">
                 賓桌：{{ item.relationshipSide === 'groom' ? '新郎方' : '新娘方' }}
                 <template v-if="item.relationshipType">
@@ -234,7 +239,7 @@
               <template v-else>
                 <td class="px-4 py-3 font-medium text-gray-800">{{ item.name }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.phone }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ item.guestCount }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ item.guestCount ?? '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipSide === 'groom' ? '新郎方' : item.relationshipSide === 'bride' ? '新娘方' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipType === 'relative' ? '親戚' : item.relationshipType === 'friend' ? '朋友' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ dietaryLabel(item.dietaryPreference) }}</td>
@@ -285,6 +290,7 @@ const editingId = ref<string | null>(null)
 const editForm = ref<any>({})
 const editLoading = ref(false)
 const editError = ref('')
+const loadError = ref(false)
 
 const stats = computed(() => ({
   attending: rsvpList.value.filter((r) => r.attending).length,
@@ -305,8 +311,13 @@ onMounted(async () => {
 })
 
 async function loadList() {
-  const res = await adminApi.get('/api/admin/rsvp')
-  rsvpList.value = res.data.data
+  loadError.value = false
+  try {
+    const res = await adminApi.get('/api/admin/rsvp')
+    rsvpList.value = res.data.data
+  } catch {
+    loadError.value = true
+  }
 }
 
 function startEdit(item: any) {
@@ -316,7 +327,7 @@ function startEdit(item: any) {
     name: item.name,
     phone: item.phone,
     attending: item.attending,
-    guestCount: item.guestCount,
+    guestCount: item.guestCount ?? '',
     relationshipSide: item.relationshipSide ?? '',
     relationshipType: item.relationshipType ?? '',
     dietaryPreference: item.dietaryPreference ?? 'regular',
@@ -337,7 +348,7 @@ async function saveEdit(id: string) {
       name: editForm.value.name,
       phone: editForm.value.phone,
       attending: editForm.value.attending,
-      guestCount: editForm.value.guestCount,
+      guestCount: editForm.value.guestCount === '' ? null : Number(editForm.value.guestCount),
       dietaryPreference: editForm.value.dietaryPreference,
     }
     if (editForm.value.relationshipSide) payload.relationshipSide = editForm.value.relationshipSide
@@ -417,7 +428,7 @@ function exportCsv() {
     r.id,
     r.name,
     r.phone,
-    r.guestCount,
+    r.guestCount ?? '',
     sideLabel(r.relationshipSide),
     typeLabel(r.relationshipType),
     dietaryLabel(r.dietaryPreference),
