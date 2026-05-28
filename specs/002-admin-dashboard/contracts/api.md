@@ -1,7 +1,7 @@
 # API 合約文件：後台管理介面
 
 **Feature**: `002-admin-dashboard`
-**Date**: 2026-05-28
+**Date**: 2026-05-29（RSVP v2 欄位更新）
 **Base URL**: `https://api.hezhouwedding.com`
 **API Prefix**: `/api/admin`
 
@@ -99,11 +99,17 @@ Authorization: Bearer <JWT token>
       "name": "王大明",
       "phone": "0912345678",
       "attending": true,
-      "guestCount": 2,
+      "adultCount": 2,
+      "childCount": 1,
+      "needsHighchair": true,
+      "highchairCount": 1,
       "relationshipSide": "groom",
       "relationshipType": "friend",
       "dietaryPreference": "regular",
-      "notes": null,
+      "needsInvitation": false,
+      "invitationName": null,
+      "invitationPhone": null,
+      "invitationAddress": null,
       "notificationEmailSent": true,
       "notificationEmailSentAt": "2026-05-28T10:00:00.000Z",
       "notificationEmailError": null,
@@ -117,7 +123,7 @@ Authorization: Bearer <JWT token>
 
 ## POST /api/admin/rsvp
 
-新增 RSVP 資料。需 JWT。驗證規則與前台 `POST /api/rsvp` 相同。
+新增 RSVP 資料。需 JWT。使用 `adminCreateRsvpSchema`（非前台 schema）：`attending` 欄位不需傳入（後端固定為 `true`）；`adultCount` 可為 null（表示人數待確認）；不含 RSVP 前台所需的強制人數驗證。
 
 ### 請求
 
@@ -125,37 +131,94 @@ Authorization: Bearer <JWT token>
 {
   "name": "李小華",
   "phone": "0987654321",
-  "attending": true,
-  "guestCount": 1,
+  "adultCount": 2,
+  "childCount": 1,
+  "needsHighchair": true,
+  "highchairCount": 1,
   "relationshipSide": "bride",
   "relationshipType": "relative",
   "dietaryPreference": "vegetarian",
-  "notes": null
+  "needsInvitation": true,
+  "invitationName": "李小華",
+  "invitationPhone": "0987654321",
+  "invitationAddress": "台北市中正區忠孝東路一段1號"
 }
 ```
+
+**欄位說明：**
+
+| 欄位 | 型別 | 必填 | 說明 |
+|------|------|------|------|
+| name | string | ✅ | 賓客姓名 |
+| phone | string | ✅ | 台灣手機（09開頭）或市話格式 |
+| adultCount | number \| null | — | 大人人數（1–10）；null 表示待確認 |
+| childCount | number | — | 小孩人數（0–10）；預設 0 |
+| needsHighchair | boolean \| null | — | 是否需要兒童椅；childCount > 0 時有意義 |
+| highchairCount | number \| null | — | 兒童椅張數（1–10）；needsHighchair = true 時有意義 |
+| relationshipSide | "groom" \| "bride" | — | 賓桌歸屬 |
+| relationshipType | "relative" \| "friend" | — | 關係類型；需先設定 relationshipSide |
+| dietaryPreference | "regular" \| "vegetarian" | — | 飲食偏好；預設 "regular" |
+| needsInvitation | boolean | — | 是否需要紙本喜帖；預設 false |
+| invitationName | string | — | 收件人姓名；needsInvitation = true 時有意義 |
+| invitationPhone | string | — | 收件人電話；needsInvitation = true 時有意義 |
+| invitationAddress | string | — | 收件地址；needsInvitation = true 時有意義 |
 
 ### 回應
 
 #### 201 Created
 
+回傳完整 RSVPSubmission 物件：
+
 ```json
 {
   "data": {
     "id": 3,
-    "message": "RSVP 已成功新增"
+    "name": "李小華",
+    "phone": "0987654321",
+    "attending": true,
+    "adultCount": 2,
+    "childCount": 1,
+    "needsHighchair": true,
+    "highchairCount": 1,
+    "relationshipSide": "bride",
+    "relationshipType": "relative",
+    "dietaryPreference": "vegetarian",
+    "needsInvitation": true,
+    "invitationName": "李小華",
+    "invitationPhone": "0987654321",
+    "invitationAddress": "台北市中正區忠孝東路一段1號",
+    "notificationEmailSent": false,
+    "notificationEmailSentAt": null,
+    "notificationEmailError": null,
+    "createdAt": "2026-05-29T10:00:00.000Z"
   }
 }
 ```
 
-#### 400 / 409 — 驗證失敗 / 重複電話
+#### 400 — 驗證失敗
 
-與前台 `POST /api/rsvp` 相同格式。
+```json
+{
+  "error": "VALIDATION_ERROR",
+  "message": "請輸入台灣手機（09 開頭）或市話格式",
+  "details": [{ "path": ["phone"], "message": "請輸入台灣手機（09 開頭）或市話格式" }]
+}
+```
+
+#### 409 — 電話號碼重複
+
+```json
+{
+  "error": "DUPLICATE_PHONE",
+  "message": "此電話號碼已登記"
+}
+```
 
 ---
 
 ## PUT /api/admin/rsvp/:id
 
-修改指定 RSVP。需 JWT。支援部分欄位更新（Partial）。
+修改指定 RSVP。需 JWT。所有欄位均為選填（Partial update）；僅傳入需變更的欄位。
 
 ### 請求
 
@@ -165,23 +228,53 @@ PUT /api/admin/rsvp/3
 
 ```json
 {
-  "attending": false,
-  "guestCount": 0,
-  "notes": "臨時無法出席"
+  "adultCount": 3,
+  "childCount": 0,
+  "needsHighchair": null,
+  "highchairCount": null,
+  "needsInvitation": false,
+  "invitationName": null,
+  "invitationPhone": null,
+  "invitationAddress": null
 }
 ```
 
+可更新欄位：`name`、`phone`、`attending`、`adultCount`、`childCount`、`needsHighchair`、`highchairCount`、`relationshipSide`、`relationshipType`、`dietaryPreference`（"regular" | "vegetarian"）、`needsInvitation`、`invitationName`、`invitationPhone`、`invitationAddress`
+
 ### 回應
 
-#### 200 OK
+#### 200 OK — 回傳完整更新後的 RSVPSubmission 物件
 
 ```json
 {
   "data": {
     "id": 3,
-    "message": "RSVP 已成功更新"
+    "name": "李小華",
+    "phone": "0987654321",
+    "attending": true,
+    "adultCount": 3,
+    "childCount": 0,
+    "needsHighchair": null,
+    "highchairCount": null,
+    "relationshipSide": "bride",
+    "relationshipType": "relative",
+    "dietaryPreference": "vegetarian",
+    "needsInvitation": false,
+    "invitationName": null,
+    "invitationPhone": null,
+    "invitationAddress": null,
+    "notificationEmailSent": false,
+    "notificationEmailSentAt": null,
+    "notificationEmailError": null,
+    "createdAt": "2026-05-29T10:00:00.000Z"
   }
 }
+```
+
+#### 400 — 驗證失敗
+
+```json
+{ "error": "VALIDATION_ERROR", "details": [...] }
 ```
 
 #### 404 Not Found
@@ -189,7 +282,16 @@ PUT /api/admin/rsvp/3
 ```json
 {
   "error": "NOT_FOUND",
-  "message": "找不到指定的 RSVP 記錄"
+  "message": "找不到此 RSVP"
+}
+```
+
+#### 409 — 電話號碼重複
+
+```json
+{
+  "error": "DUPLICATE_PHONE",
+  "message": "此電話號碼已登記"
 }
 ```
 
