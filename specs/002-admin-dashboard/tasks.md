@@ -91,8 +91,8 @@
 
 **Purpose**: 部署環境設定確認、跨功能驗證
 
-- [ ] T017 在 Zeabur Dashboard → backend 服務 → Variables 新增 `JWT_SECRET`（≥ 32 字元隨機字串，以 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` 產生）與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}`，並確認服務重新部署成功
-- [ ] T018 [P] 確認 Zeabur frontend 服務 SPA fallback 設定：直接訪問 `https://hezhouwedding.com/admin` 不出現 404（若出現，至 Zeabur Dashboard → frontend → Settings 開啟 SPA mode）
+- [x] T017 在 Zeabur Dashboard → backend 服務 → Variables 新增 `JWT_SECRET`（≥ 32 字元隨機字串，以 `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` 產生）與 `ADMIN_CREDENTIALS={"bean":"bean","zhou":"zhou"}`，並確認服務重新部署成功
+- [x] T018 [P] 確認 Zeabur frontend 服務 SPA fallback 設定：直接訪問 `https://hezhouwedding.com/admin` 不出現 404（若出現，至 Zeabur Dashboard → frontend → Settings 開啟 SPA mode）
 - [x] T019 依照 `specs/002-admin-dashboard/quickstart.md` 執行本地驗證清單（`POST /api/admin/login` 正確帳密 → 200；錯誤帳密 → 401；無 token 訪問 `/api/admin/rsvp` → 401；CRUD 全流程通過；前台不受影響）
 - [ ] T020 [P] 手動測試生產環境 `https://hezhouwedding.com/admin` 完整流程：登入 → 列表顯示 → 統計摘要 → 搜尋 → 新增（Modal）→ 修改（Inline）→ 刪除；分別在手機（375px）與桌機（1440px）確認 RWD 佈局正確
 
