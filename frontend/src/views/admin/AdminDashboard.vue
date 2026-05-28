@@ -29,13 +29,19 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex gap-3 items-center">
+      <div class="flex gap-3 items-center flex-wrap">
         <input
           v-model="search"
           type="text"
           placeholder="搜尋姓名或電話..."
-          class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
+          class="flex-1 min-w-0 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
         />
+        <button
+          @click="exportCsv"
+          class="border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm hover:bg-gray-100 whitespace-nowrap transition"
+        >
+          匯出 CSV
+        </button>
         <button
           @click="showModal = true"
           class="bg-gray-800 text-white rounded-lg px-4 py-2 text-sm hover:bg-gray-700 whitespace-nowrap transition"
@@ -419,6 +425,64 @@ function dietaryLabel(val: string) {
     other: '其他',
   }
   return map[val] ?? val
+}
+
+function csvEscape(val: any): string {
+  if (val === null || val === undefined) return ''
+  const str = String(val)
+  return str.includes(',') || str.includes('"') || str.includes('\n')
+    ? `"${str.replace(/"/g, '""')}"`
+    : str
+}
+
+function exportCsv() {
+  const headers = [
+    '編號', '姓名', '電話', '出席狀態', '出席人數',
+    '賓桌歸屬', '關係類型', '飲食偏好', '備註',
+    '提交時間（UTC+8）', '通知信已發送',
+  ]
+
+  const sideLabel = (v: string | null) =>
+    v === 'groom' ? '新郎方' : v === 'bride' ? '新娘方' : ''
+  const typeLabel = (v: string | null) =>
+    v === 'relative' ? '親戚' : v === 'friend' ? '朋友' : ''
+
+  const rows = rsvpList.value.map((r) => [
+    r.id,
+    r.name,
+    r.phone,
+    r.attending ? '出席' : '不克出席',
+    r.guestCount,
+    sideLabel(r.relationshipSide),
+    typeLabel(r.relationshipType),
+    dietaryLabel(r.dietaryPreference),
+    r.notes ?? '',
+    formatDate(r.createdAt),
+    r.notificationEmailSent ? '是' : '否',
+  ])
+
+  const s = stats.value
+  const summaryRows = [
+    [],
+    ['【統計摘要】'],
+    ['出席筆數', s.attending],
+    ['不克出席筆數', s.notAttending],
+    ['總出席人數', s.totalGuests],
+    ['總回覆筆數', rsvpList.value.length],
+  ]
+
+  const allRows = [headers, ...rows, ...summaryRows]
+  const csv = allRows.map((row) => row.map(csvEscape).join(',')).join('\r\n')
+
+  // BOM for Excel to display Chinese correctly
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  const date = new Date().toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei' }).replace(/\//g, '')
+  a.href = url
+  a.download = `RSVP_${date}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
 }
 </script>
 
