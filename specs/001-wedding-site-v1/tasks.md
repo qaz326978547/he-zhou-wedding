@@ -45,7 +45,7 @@
 ### 前端基礎
 
 - [X] T012 建立 Axios API service 於 `frontend/src/services/api.ts`（`baseURL: import.meta.env.VITE_API_BASE_URL`，Content-Type: application/json）
-- [X] T013 [P] 設定 Tailwind CSS 設計 Token 於 `frontend/tailwind.config.ts`（擴充 colors：`wedding-cream: #FAF8F5`、`wedding-gold: #C9A96E`、`wedding-charcoal: #2C2C2C`；字型：font-script（Great Vibes）、font-display（Cormorant Garamond）；斷點：sm 375、md 768、lg 1280）
+- [X] T013 [P] 設定 Tailwind CSS 設計 Token 於 `frontend/tailwind.config.ts`（擴充 colors：`wedding-cream: #FAF8F5`、`wedding-gold: #C9A96E`、`wedding-charcoal: #2C2C2C`；字型：font-script / font-display（Great Vibes, cursive）、font-wedding-zh（Iansui, Noto Serif TC, serif）；斷點：sm 375、md 768、lg 1280）
 - [X] T014 [P] 定義 TypeScript 型別於 `frontend/src/types/index.ts`（`RsvpPayload`、`ApiResponse<T>`、`RsvpStatus`、`DietaryPreference`、`RelationshipSide`、`RelationshipType`）
 - [X] T015 [P] 定義婚禮靜態常數於 `frontend/src/constants/wedding.ts`（`WEDDING.countdownTarget = new Date('2026-11-14T04:00:00Z')`、venue 正式資料已填入（全國大飯店 2F / 台灣臺中市西區館前路 57 號 / https://maps.app.goo.gl/CQz5TGweR5N8CgsQA）、couple English names（HE Bean / Katherine Zhou）、LINE URL/description/qrCodePath、RSVP success 訊息文字）
 - [X] T016 建立 `frontend/src/App.vue` shell，依序 import 並渲染：HeroSection、CountdownSection、CalendarSection、TimelineSection、InfoSection、GallerySection、RsvpSection、AppFooter；掛載 MusicToggle（全域浮動）

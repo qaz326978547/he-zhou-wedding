@@ -19,7 +19,7 @@ export default {
       },
       fontFamily: {
         script:      ['Great Vibes', 'cursive'],
-        display:     ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
+        display:     ['Great Vibes', 'cursive'],
         body:        ['system-ui', '-apple-system', 'sans-serif'],
         'wedding-zh': ['Iansui', 'Noto Serif TC', 'serif'],
       },

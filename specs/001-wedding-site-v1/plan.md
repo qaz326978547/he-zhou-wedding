@@ -5,7 +5,7 @@
 
 ## 摘要
 
-建置 HE Bean & Katherine Zhou 婚禮邀請 SPA 網站，提供完整婚禮資訊瀏覽（7 個區塊 + Footer）、線上 RSVP 回覆（含 IP 速率限制、重複偵測、Email 通知）、背景音樂播放控制、LINE 官方帳號整合，以及 OG 社群分享支援。採 Vue 3 + Node.js + PostgreSQL 全端 Monorepo 架構，部署於 Zeabur 平台。
+建置 Bean & Katherine 婚禮邀請 SPA 網站，提供完整婚禮資訊瀏覽（7 個區塊 + Footer）、線上 RSVP 回覆（含 IP 速率限制、重複偵測、Email 通知）、背景音樂播放控制、LINE 官方帳號整合，以及 OG 社群分享支援。採 Vue 3 + Node.js + PostgreSQL 全端 Monorepo 架構，部署於 Zeabur 平台。
 
 ---
 

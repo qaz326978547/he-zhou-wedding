@@ -191,7 +191,7 @@ const rsvpSchema = z.object({
 
 **標籤清單**：
 ```html
-<meta property="og:title" content="HE Bean & Katherine Zhou 婚禮邀請 · 2026.11.14" />
+<meta property="og:title" content="Bean & Katherine 婚禮邀請 · 2026.11.14" />
 <meta property="og:description" content="我們誠摯邀請您蒞臨觀禮，見證這美好時刻。" />
 <meta property="og:image" content="https://hezhouwedding.com/assets/og/og-cover.jpg" />
 <meta property="og:url" content="https://hezhouwedding.com" />
