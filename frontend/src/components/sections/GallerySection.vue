@@ -31,6 +31,7 @@ const GALLERY_IMAGES = [
           :alt="`婚紗照 ${idx + 1}`"
           loading="lazy"
           class="w-full object-cover transition-all duration-500 hover:scale-105"
+          style="object-position: center 70%"
         />
       </div>
     </div>

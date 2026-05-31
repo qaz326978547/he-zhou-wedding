@@ -85,6 +85,7 @@ const navigation = true
                 :alt="`婚紗照 ${idx + 1}`"
                 loading="lazy"
                 class="w-full h-full object-cover"
+                style="object-position: center 70%"
               />
             </div>
             <!-- Bottom sprocket strip -->
