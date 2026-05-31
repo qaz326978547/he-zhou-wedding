@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Iansui';
+  src: url('@/assets/fonts/Iansui-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-wedding-zh: 'Iansui', 'Noto Serif TC', serif;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -13,6 +25,15 @@
 
   h1, h2, h3 {
     @apply font-display;
+  }
+
+  /* Scope Iansui to wedding site pages only (not /admin) */
+  .wedding-site {
+    font-family: var(--font-wedding-zh);
+  }
+  /* font-sans inside wedding-site also maps to Iansui (used for Chinese name display) */
+  .wedding-site .font-sans {
+    font-family: var(--font-wedding-zh);
   }
 }
 

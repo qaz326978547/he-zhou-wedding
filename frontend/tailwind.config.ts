@@ -18,9 +18,10 @@ export default {
         'wedding-gold-dark':  '#A0793A',
       },
       fontFamily: {
-        script:  ['Great Vibes', 'cursive'],
-        display: ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
-        body:    ['system-ui', '-apple-system', 'sans-serif'],
+        script:      ['Great Vibes', 'cursive'],
+        display:     ['Cormorant Garamond', 'Playfair Display', 'Georgia', 'serif'],
+        body:        ['system-ui', '-apple-system', 'sans-serif'],
+        'wedding-zh': ['Iansui', 'Noto Serif TC', 'serif'],
       },
       screens: {
         sm: '375px',
