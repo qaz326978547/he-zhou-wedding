@@ -157,7 +157,7 @@ function scrollToRsvp() {
 /* ── Photo rendering: mobile cover / desktop contain ── */
 .hero-photo {
   object-fit: cover;
-  object-position: 42% center;
+  object-position: 53% center;
 }
 
 @media (min-width: 1024px) {
