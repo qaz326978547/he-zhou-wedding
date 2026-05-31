@@ -134,7 +134,7 @@ function scrollToRsvp() {
 
       <!-- Date -->
       <p
-        class="hero-fade font-display text-wedding-charcoal/50 tracking-[0.38em] text-[11px] md:text-xs text-center mb-6"
+        class="hero-fade font-display text-wedding-charcoal/50 tracking-[0.38em] text-[16px] md:text-sm text-center mb-6"
         style="--delay: 1.5s"
       >
         2026 / 11 / 14
@@ -143,7 +143,7 @@ function scrollToRsvp() {
       <!-- CTA -->
       <div class="hero-fade text-center" style="--delay: 1.75s">
         <button
-          class="border border-wedding-gold text-wedding-gold font-display tracking-[0.25em] text-xs uppercase px-10 py-4 transition-all duration-300 hover:bg-wedding-gold hover:text-white min-h-[44px]"
+          class="border border-wedding-gold text-wedding-gold font-display tracking-[0.25em] text-sm uppercase px-10 py-4 transition-all duration-300 hover:bg-wedding-gold hover:text-white min-h-[44px]"
           @click="scrollToRsvp"
         >
           出席回覆

@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import LineButton from '@/components/ui/LineButton.vue'
-import { WEDDING } from '@/constants/wedding'
+import LineButton from "@/components/ui/LineButton.vue";
+import { WEDDING } from "@/constants/wedding";
 </script>
 
 <template>
-  <footer class="bg-wedding-linen border-t border-wedding-stone py-16 px-6 text-center">
+  <footer
+    class="bg-wedding-linen border-t border-wedding-stone py-16 px-6 text-center"
+  >
     <p class="font-script text-3xl text-wedding-gold mb-2">Stay Connected</p>
-    <p class="font-display text-wedding-mist text-xs tracking-[0.3em] uppercase mb-6">
+    <p
+      class="font-display text-wedding-mist text-xs tracking-[0.3em] uppercase mb-6"
+    >
       保持聯繫
     </p>
     <p class="text-wedding-charcoal/60 text-sm mb-8 max-w-md mx-auto">
@@ -16,7 +20,7 @@ import { WEDDING } from '@/constants/wedding'
 
     <div class="gold-divider mt-12" />
     <p class="text-wedding-mist/70 text-xs tracking-widest">
-      © 2026 HE Bean &amp; Katherine Zhou · All Rights Reserved
+      © 2026 Bean &amp; Katherine · All Rights Reserved
     </p>
   </footer>
 </template>
