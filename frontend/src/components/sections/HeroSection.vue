@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 
-const heroImg = '/assets/hero/hero.jpg'
+const heroImg = '/assets/hero/hero.png'
 const active = ref(false)
 
 onMounted(() => {
