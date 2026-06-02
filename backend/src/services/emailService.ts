@@ -9,7 +9,7 @@ const DIETARY_LABEL: Record<string, string> = {
   regular: '葷食',
   vegetarian: '素食',
 }
-const SIDE_LABEL: Record<string, string> = { groom: '新郎方', bride: '新娘方' }
+const SIDE_LABEL: Record<string, string> = { groom: '新郎親友', bride: '新娘親友' }
 const REL_LABEL: Record<string, string> = { relative: '親屬', friend: '朋友' }
 
 function toTaipeiTime(date: Date): string {

@@ -81,8 +81,8 @@
                 <label class="text-xs text-gray-400">賓桌</label>
                 <select v-model="editForm.relationshipSide" class="edit-input">
                   <option value="">--</option>
-                  <option value="groom">新郎方</option>
-                  <option value="bride">新娘方</option>
+                  <option value="groom">新郎親友</option>
+                  <option value="bride">新娘親友</option>
                 </select>
               </div>
               <div>
@@ -133,7 +133,7 @@
               <div>大人：{{ item.adultCount ?? '--' }} 位　小孩：{{ item.childCount ?? '--' }} 位</div>
               <div v-if="item.childCount > 0">兒童椅：{{ item.needsHighchair === true ? `需要 ${item.highchairCount ?? 1} 張` : item.needsHighchair === false ? '不需要' : '--' }}</div>
               <div v-if="item.relationshipSide">
-                賓桌：{{ item.relationshipSide === 'groom' ? '新郎方' : '新娘方' }}
+                賓桌：{{ item.relationshipSide === 'groom' ? '新郎親友' : '新娘親友' }}
                 <template v-if="item.relationshipType">· {{ item.relationshipType === 'relative' ? '親戚' : '朋友' }}</template>
               </div>
               <div v-if="item.dietaryPreference === 'vegetarian'">飲食：素食</div>
@@ -202,8 +202,8 @@
                 <td class="px-2 py-2">
                   <select v-model="editForm.relationshipSide" class="edit-input w-24">
                     <option value="">--</option>
-                    <option value="groom">新郎方</option>
-                    <option value="bride">新娘方</option>
+                    <option value="groom">新郎親友</option>
+                    <option value="bride">新娘親友</option>
                   </select>
                 </td>
                 <td class="px-2 py-2">
@@ -242,7 +242,7 @@
                 <td class="px-4 py-3 text-gray-600">{{ item.adultCount ?? '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.childCount ?? '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.needsHighchair === true ? `需要 ${item.highchairCount ?? 1} 張` : item.needsHighchair === false ? '不需要' : '--' }}</td>
-                <td class="px-4 py-3 text-gray-600">{{ item.relationshipSide === 'groom' ? '新郎方' : item.relationshipSide === 'bride' ? '新娘方' : '--' }}</td>
+                <td class="px-4 py-3 text-gray-600">{{ item.relationshipSide === 'groom' ? '新郎親友' : item.relationshipSide === 'bride' ? '新娘親友' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.relationshipType === 'relative' ? '親戚' : item.relationshipType === 'friend' ? '朋友' : '--' }}</td>
                 <td class="px-4 py-3 text-gray-600">{{ item.dietaryPreference === 'vegetarian' ? '素食' : '葷食' }}</td>
                 <td class="px-4 py-3 text-gray-600">
@@ -413,7 +413,7 @@ function exportCsv() {
     '提交時間（UTC+8）', '通知信已發送',
   ]
 
-  const sideLabel = (v: string) => v === 'groom' ? '新郎方' : v === 'bride' ? '新娘方' : ''
+  const sideLabel = (v: string) => v === 'groom' ? '新郎親友' : v === 'bride' ? '新娘親友' : ''
   const typeLabel = (v: string) => v === 'relative' ? '親戚' : v === 'friend' ? '朋友' : ''
   const highchairLabel = (v: boolean | null, count?: number | null) =>
     v === true ? `需要 ${count ?? 1} 張` : v === false ? '不需要' : ''

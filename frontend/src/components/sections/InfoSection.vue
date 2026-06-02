@@ -18,7 +18,7 @@ import { WEDDING } from "@/constants/wedding";
         class="bg-white rounded-xl shadow-card border border-wedding-stone/50 p-8"
       >
         <p
-          class="text-wedding-gold font-display tracking-widest text-xs uppercase mb-4"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-4"
         >
           日期 &amp; 時間
         </p>
@@ -33,7 +33,7 @@ import { WEDDING } from "@/constants/wedding";
         class="bg-white rounded-xl shadow-card border border-wedding-stone/50 p-8"
       >
         <p
-          class="text-wedding-gold font-display tracking-widest text-xs uppercase mb-4"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-4"
         >
           宴客地點
         </p>
@@ -61,7 +61,7 @@ import { WEDDING } from "@/constants/wedding";
         class="bg-white rounded-xl shadow-card border border-wedding-stone/50 p-8 md:col-span-2"
       >
         <p
-          class="text-wedding-gold font-display tracking-widest text-xs uppercase mb-4"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-4"
         >
           交通資訊
         </p>
@@ -75,10 +75,10 @@ import { WEDDING } from "@/constants/wedding";
       <!-- Notes -->
       <div
         v-if="WEDDING.venue.notes"
-        class="bg-wedding-gold/5 rounded-xl border border-wedding-gold/20 p-8 md:col-span-2"
+        class="bg-white rounded-xl border border-wedding-gold/20 p-8 md:col-span-2"
       >
         <p
-          class="text-wedding-gold font-display tracking-widest text-xs uppercase mb-4"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-4"
         >
           注意事項
         </p>

@@ -59,8 +59,8 @@
               <label class="block text-xs text-gray-500 mb-1">賓桌歸屬</label>
               <select v-model="form.relationshipSide" class="input-field">
                 <option value="">-- 未指定 --</option>
-                <option value="groom">新郎方</option>
-                <option value="bride">新娘方</option>
+                <option value="groom">新郎親友</option>
+                <option value="bride">新娘親友</option>
               </select>
             </div>
             <div>

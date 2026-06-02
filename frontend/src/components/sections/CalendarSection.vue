@@ -77,7 +77,7 @@ while (day <= 30) {
                 />
               </svg>
               <span
-                class="relative z-10 font-display font-semibold text-wedding-gold text-[18px] leading-none mt-[-2px]"
+                class="relative z-10 font-display font-semibold text-wedding-gold text-[14px] leading-none mt-[-2px]"
               >
                 14
               </span>

@@ -80,7 +80,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <p class="text-wedding-charcoal/60 text-sm mt-2">
           {{ WEDDING.venue.name }}
         </p>
-        <p class="text-wedding-mist text-xs mt-1">
+        <p class="text-wedding-mist mt-1">
           {{ WEDDING.venue.address }}
         </p>
       </div>
@@ -88,9 +88,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <div
         class="bg-white rounded-xl shadow-card border border-wedding-stone p-8 space-y-6"
       >
-        <p
-          class="text-wedding-gold font-display tracking-widest text-xs uppercase"
-        >
+        <p class="text-wedding-gold font-display tracking-widest uppercase">
           加入 LINE 官方帳號
         </p>
         <p class="text-wedding-charcoal/70 text-sm">
@@ -144,6 +142,10 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <!-- Attending — card-style radio, above guest count -->
       <div>
         <div class="grid grid-cols-1 gap-3">
+          <p class="text-wedding-gold font-display tracking-widest uppercase">
+            出席狀態
+            <span class="text-red-400">*</span>
+          </p>
           <label
             class="relative flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 min-h-[44px]"
             :class="
@@ -173,12 +175,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               />
             </span>
             <div>
-              <p
-                class="font-display text-wedding-charcoal text-sm tracking-wide"
-              >
-                開心出席
-              </p>
-              <p class="text-wedding-charcoal/55 text-xs mt-1 leading-relaxed">
+              <p class="text-wedding-charcoal/55 text-sm mt-1 leading-relaxed">
                 開心出席～婚禮當天見啦～～♡⸜(｡˃ ᵕ ˂ )⸝
               </p>
             </div>
@@ -213,12 +210,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               />
             </span>
             <div>
-              <p
-                class="font-display text-wedding-charcoal text-sm tracking-wide"
-              >
-                不克出席
-              </p>
-              <p class="text-wedding-charcoal/55 text-xs mt-1 leading-relaxed">
+              <p class="text-wedding-charcoal/55 text-sm mt-1 leading-relaxed">
                 不克出席，但會在遠方為你們感到開心˚ʚ♡ɞ˚
               </p>
             </div>
@@ -231,7 +223,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <!-- Adult count -->
         <div>
           <label
-            class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2"
+            class="text-wedding-gold font-display tracking-widest uppercase block mb-2"
           >
             大人幾位 <span class="text-red-400">*</span>
           </label>
@@ -250,7 +242,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               {{ n }} 位
             </option>
           </select>
-          <p v-if="errors.adultCount" class="text-red-400 text-xs mt-1">
+          <p v-if="errors.adultCount" class="text-red-400 mt-1">
             {{ errors.adultCount }}
           </p>
         </div>
@@ -258,11 +250,10 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <!-- Child count -->
         <div>
           <label
-            class="text-xs text-wedding-gold font-display tracking-widest uppercase block mb-2"
+            class="text-wedding-gold font-display tracking-widest uppercase block mb-2"
           >
             小孩幾位
-            <span
-              class="text-wedding-mist/70 text-xs normal-case tracking-normal"
+            <span class="text-wedding-mist/70 normal-case tracking-normal"
               >（12 歲以下）</span
             >
           </label>
@@ -281,7 +272,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               {{ n }} 位
             </option>
           </select>
-          <p v-if="errors.childCount" class="text-red-400 text-xs mt-1">
+          <p v-if="errors.childCount" class="text-red-400 mt-1">
             {{ errors.childCount }}
           </p>
         </div>
@@ -289,7 +280,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <!-- Highchair (conditional: childCount > 0) -->
         <div v-if="showHighchair">
           <p
-            class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3"
+            class="text-wedding-gold font-display tracking-widest uppercase mb-3"
           >
             是否需要兒童椅 <span class="text-red-400">*</span>
           </p>
@@ -331,7 +322,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               <span class="text-wedding-charcoal text-sm">不需要</span>
             </label>
           </div>
-          <p v-if="errors.needsHighchair" class="text-red-400 text-xs mt-1">
+          <p v-if="errors.needsHighchair" class="text-red-400 mt-1">
             {{ errors.needsHighchair }}
           </p>
         </div>
@@ -340,10 +331,10 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <!-- Relationship Side -->
       <div>
         <p
-          class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
           賓桌歸屬
-          <span class="text-wedding-mist/70 text-xs normal-case tracking-normal"
+          <span class="text-wedding-mist/70 normal-case tracking-normal"
             >（選填）</span
           >
         </p>
@@ -356,7 +347,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               class="accent-wedding-gold w-4 h-4"
               :disabled="isLoading"
             />
-            <span class="text-wedding-charcoal text-sm">新郎方</span>
+            <span class="text-wedding-charcoal text-sm">新郎親友</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
             <input
@@ -366,7 +357,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
               class="accent-wedding-gold w-4 h-4"
               :disabled="isLoading"
             />
-            <span class="text-wedding-charcoal text-sm">新娘方</span>
+            <span class="text-wedding-charcoal text-sm">新娘親友</span>
           </label>
         </div>
       </div>
@@ -374,10 +365,10 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <!-- Relationship Type -->
       <div v-if="showRelationshipType">
         <p
-          class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
           關係類型
-          <span class="text-wedding-mist/70 text-xs normal-case tracking-normal"
+          <span class="text-wedding-mist/70 normal-case tracking-normal"
             >（選填）</span
           >
         </p>
@@ -408,10 +399,10 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <!-- Dietary Preference -->
       <div>
         <p
-          class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
           飲食偏好
-          <span class="text-wedding-mist/70 text-xs normal-case tracking-normal"
+          <span class="text-wedding-mist/70 normal-case tracking-normal"
             >（選填）</span
           >
         </p>
@@ -442,7 +433,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
       <!-- Paper invitation -->
       <div>
         <p
-          class="text-xs text-wedding-gold font-display tracking-widest uppercase mb-3"
+          class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
           是否需要紙本喜帖
         </p>

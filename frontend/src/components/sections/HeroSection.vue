@@ -67,7 +67,7 @@ function scrollToRsvp() {
          TOP — script atmosphere title, lives in sky/background
     ─────────────────────────────────────────────────────────── -->
     <div
-      class="absolute top-0 inset-x-0 z-10 text-center pt-12 md:pt-16"
+      class="absolute top-[25px] inset-x-0 z-10 text-center pt-20 md:pt-16"
       :class="{ 'hero-active': active }"
     >
       <!-- pt-4 pb-3 on <p> gives clip-path animation room above ascenders -->
@@ -125,7 +125,7 @@ function scrollToRsvp() {
             周羽薇
           </p>
           <p
-            class="font-display text-[10px] md:text-xs text-wedding-charcoal/55 tracking-[0.38em] mt-2 uppercase"
+            class="font-display font-bold text-[10px] md:text-xs text-wedding-charcoal/55 tracking-[0.38em] mt-2 uppercase"
           >
             Katherine
           </p>

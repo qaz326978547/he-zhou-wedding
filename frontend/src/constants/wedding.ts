@@ -4,15 +4,15 @@ export const WEDDING = {
     bride: "Katherine",
   },
   date: "2026-11-14",
-  dateDisplay: "2026 年 11 月 14 日（星期六）",
+  dateDisplay: "2026 年 11 月 14 日 星期六",
   time: "12:30",
   timezone: "Asia/Taipei",
   // 2026-11-14 12:30 UTC+8 = 04:30 UTC
   countdownTarget: new Date("2026-11-14T04:30:00Z"),
 
   venue: {
-    name: "全國大飯店 2F",
-    room: "草悟廳",
+    name: "全國大飯店 2F 草悟廳",
+    room: "",
     address: "台中市西區館前路57號",
     googleMapsUrl: "https://maps.app.goo.gl/CQz5TGweR5N8CgsQA",
     transport:
