@@ -33,7 +33,7 @@ while (day <= 30) {
 
     <!-- Polaroid / Magazine calendar card -->
     <div
-      class="relative mt-12 mx-auto max-w-[390px] bg-[#1f1f1f] p-4 pb-8 shadow-2xl"
+      class="relative mt-12 mx-auto max-w-[600px] bg-[#1f1f1f] p-4 pb-8 shadow-2xl"
     >
 
 

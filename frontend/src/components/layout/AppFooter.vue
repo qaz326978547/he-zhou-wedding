@@ -19,8 +19,6 @@ import { WEDDING } from "@/constants/wedding";
     <LineButton :href="WEDDING.line.url" label="加入 LINE 官方帳號" />
 
     <div class="gold-divider mt-12" />
-    <p class="text-wedding-mist/70 text-xs tracking-widest">
-      © 2026 Bean &amp; Katherine · All Rights Reserved
-    </p>
+
   </footer>
 </template>

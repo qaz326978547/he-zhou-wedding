@@ -14,7 +14,7 @@
         >感謝您一直以來的支持與關愛 <br />我們攜手期待著您的到來</span
       >
     </p>
-    <div>
+    <div class="max-w-[800px] mx-auto">
       <img
         src="/assets/gallery/photo-19.jpg"
         alt="Wedding Story"
@@ -28,7 +28,7 @@
     <div class="py-24 md:py-32">
       <p class="font-script text-3xl text-wedding-gold mb-10">My Lover</p>
 
-      <div class="flex items-center w-full">
+      <div class="flex items-center w-full max-w-[800px] mx-auto gap-6 md:gap-12">
         <div class="w-1/2">
           <img
             src="/assets/gallery/photo-20.jpg"
