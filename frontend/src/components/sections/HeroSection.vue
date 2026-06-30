@@ -162,7 +162,6 @@ function scrollToRsvp() {
 
 @media (min-width: 1024px) {
   .hero-photo {
-    object-fit: contain;
     object-position: center center;
   }
 }

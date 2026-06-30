@@ -4,6 +4,8 @@ import { WEDDING } from "@/constants/wedding";
 
 <template>
   <section class="py-24 md:py-32 bg-wedding-cream px-6 text-center">
+        <img src="/assets/gallery/photo-18.png" alt="">
+
     <p class="font-script text-3xl text-wedding-gold mb-2">Wedding Day</p>
     <h2
       class="font-display text-3xl md:text-4xl text-wedding-charcoal font-light mb-2"

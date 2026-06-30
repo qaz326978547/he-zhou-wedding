@@ -9,6 +9,7 @@ import GallerySwiperSection from "@/components/sections/GallerySwiperSection.vue
 import RsvpSection from "@/components/sections/RsvpSection.vue";
 import AppFooter from "@/components/layout/AppFooter.vue";
 import MusicToggle from "@/components/ui/MusicToggle.vue";
+import StorySection from "@/components/sections/StorySection.vue";
 
 const { isPlaying, toggle } = useBackgroundMusic();
 </script>
@@ -19,7 +20,8 @@ const { isPlaying, toggle } = useBackgroundMusic();
     <HeroSection />
     <CalendarSection />
     <CountdownSection />
-    <TimelineSection />
+    <!-- <StorySection /> -->
+    <!-- <TimelineSection /> -->
     <InfoSection />
     <!-- <GallerySwiperSection /> -->
     <RsvpSection />
