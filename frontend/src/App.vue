@@ -16,11 +16,10 @@ const { isPlaying, toggle } = useBackgroundMusic();
 
 <template>
   <div class="wedding-site min-h-screen bg-wedding-cream">
-    <!-- Page Sections (FR-001) -->
     <HeroSection />
+    <StorySection />
     <CalendarSection />
     <CountdownSection />
-    <!-- <StorySection /> -->
     <!-- <TimelineSection /> -->
     <InfoSection />
     <!-- <GallerySwiperSection /> -->
