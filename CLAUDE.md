@@ -2,11 +2,11 @@
 
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan at:
-`specs/002-admin-dashboard/plan.md`
+`specs/004-red-envelope-tracking/plan.md`
 
-For local development setup, see: `specs/002-admin-dashboard/quickstart.md`
-For API contracts, see: `specs/002-admin-dashboard/contracts/api.md`
-For data model, see: `specs/002-admin-dashboard/data-model.md`
+For local development setup, see: `specs/004-red-envelope-tracking/quickstart.md`
+For API contracts, see: `specs/004-red-envelope-tracking/contracts/api.md`
+For data model, see: `specs/004-red-envelope-tracking/data-model.md`
 
 <!-- SPEC KIT END -->
 
