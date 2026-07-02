@@ -3,9 +3,14 @@
     <!-- Header -->
     <div class="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-10">
       <h1 class="text-lg font-semibold text-gray-800">RSVP 管理後台</h1>
-      <button @click="handleLogout" class="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5">
-        登出
-      </button>
+      <div class="flex items-center gap-3">
+        <RouterLink to="/admin/red-envelope" class="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5">
+          紅包登記
+        </RouterLink>
+        <button @click="handleLogout" class="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5">
+          登出
+        </button>
+      </div>
     </div>
 
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-5">

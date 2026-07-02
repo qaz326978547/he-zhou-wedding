@@ -6,8 +6,16 @@ const router = createRouter({
   routes: [
     { path: '/', component: App },
     {
+      path: '/qr',
+      component: () => import('../views/QRcode.vue'),
+    },
+    {
       path: '/admin',
       component: () => import('../views/admin/AdminDashboard.vue'),
+    },
+    {
+      path: '/admin/red-envelope',
+      component: () => import('../views/admin/AdminRedEnvelope.vue'),
     },
     {
       path: '/admin/login',

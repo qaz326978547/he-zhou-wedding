@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 import { PrismaClient } from '@prisma/client'
 import { adminCreateRsvpSchema, adminRsvpSchema } from '../validation/adminRsvpSchema'
+import { redEnvelopeSchema } from '../validation/redEnvelopeSchema'
 
 const prisma = new PrismaClient()
 
@@ -69,6 +70,43 @@ export async function deleteRsvp(req: Request, res: Response) {
   } catch (err: any) {
     if (err.code === 'P2025') {
       return res.status(404).json({ error: 'NOT_FOUND', message: '找不到此 RSVP' })
+    }
+    throw err
+  }
+}
+
+export async function listRedEnvelope(_req: Request, res: Response) {
+  const list = await prisma.redEnvelopeEntry.findMany({ orderBy: { createdAt: 'desc' } })
+  return res.json({ data: list })
+}
+
+export async function updateRedEnvelope(req: Request, res: Response) {
+  const id = parseInt(req.params.id, 10)
+  if (isNaN(id)) return res.status(400).json({ error: 'INVALID_ID' })
+  const result = redEnvelopeSchema.safeParse(req.body)
+  if (!result.success) {
+    return res.status(400).json({ error: 'VALIDATION_ERROR', details: result.error.errors })
+  }
+  try {
+    const record = await prisma.redEnvelopeEntry.update({ where: { id }, data: result.data })
+    return res.json({ data: record })
+  } catch (err: any) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ error: 'NOT_FOUND', message: '找不到此紅包登記紀錄' })
+    }
+    throw err
+  }
+}
+
+export async function deleteRedEnvelope(req: Request, res: Response) {
+  const id = parseInt(req.params.id, 10)
+  if (isNaN(id)) return res.status(400).json({ error: 'INVALID_ID' })
+  try {
+    await prisma.redEnvelopeEntry.delete({ where: { id } })
+    return res.status(204).send()
+  } catch (err: any) {
+    if (err.code === 'P2025') {
+      return res.status(404).json({ error: 'NOT_FOUND', message: '找不到此紅包登記紀錄' })
     }
     throw err
   }
