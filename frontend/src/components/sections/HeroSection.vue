@@ -72,7 +72,7 @@ function scrollToRsvp() {
     >
       <!-- pt-4 pb-3 on <p> gives clip-path animation room above ascenders -->
       <p
-        class="hero-write font-script text-5xl md:text-6xl lg:text-7xl text-wedding-charcoal/80 title-shadow pt-4 pb-3"
+        class="hero-write font-script text-5xl md:text-6xl lg:text-7xl text-white title-shadow pt-4 pb-3"
         style="--delay: 0.25s; --write-dur: 2s"
       >
         We got Married

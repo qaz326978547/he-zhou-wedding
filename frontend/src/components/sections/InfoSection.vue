@@ -25,7 +25,9 @@ import { WEDDING } from "@/constants/wedding";
         <p class="text-wedding-charcoal font-display text-xl mb-2">
           {{ WEDDING.dateDisplay }}
         </p>
-        <p class="text-wedding-mist text-sm">宴客開始時間 {{ WEDDING.time }}</p>
+        <p class="text-wedding-mist text-sm">
+          11:45 迎賓 ｜{{ WEDDING.time }} 入席
+        </p>
       </div>
 
       <!-- Venue -->

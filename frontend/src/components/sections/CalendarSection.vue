@@ -40,7 +40,7 @@ while (day <= 30) {
       <!-- photo area -->
       <div class="relative aspect-[3/4] overflow-hidden bg-black">
         <img
-          src="/assets/gallery/photo-8.jpg"
+          src="/assets/gallery/photo-24.jpg"
           alt="新人婚紗照"
           class="h-full w-full object-cover object-center opacity-85"
         />
