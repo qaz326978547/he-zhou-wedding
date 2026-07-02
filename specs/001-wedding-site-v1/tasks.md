@@ -47,7 +47,7 @@
 - [X] T012 建立 Axios API service 於 `frontend/src/services/api.ts`（`baseURL: import.meta.env.VITE_API_BASE_URL`，Content-Type: application/json）
 - [X] T013 [P] 設定 Tailwind CSS 設計 Token 於 `frontend/tailwind.config.ts`（擴充 colors：`wedding-cream: #FAF8F5`、`wedding-gold: #C9A96E`、`wedding-charcoal: #2C2C2C`；字型：font-script / font-display（Great Vibes, cursive）、font-wedding-zh（Iansui, Noto Serif TC, serif）；斷點：sm 375、md 768、lg 1280）
 - [X] T014 [P] 定義 TypeScript 型別於 `frontend/src/types/index.ts`（`RsvpPayload`、`ApiResponse<T>`、`RsvpStatus`、`DietaryPreference`、`RelationshipSide`、`RelationshipType`）
-- [X] T015 [P] 定義婚禮靜態常數於 `frontend/src/constants/wedding.ts`（`WEDDING.countdownTarget = new Date('2026-11-14T04:00:00Z')`、venue 正式資料已填入（全國大飯店 2F / 台灣臺中市西區館前路 57 號 / https://maps.app.goo.gl/CQz5TGweR5N8CgsQA）、couple English names（HE Bean / Katherine Zhou）、LINE URL/description/qrCodePath、RSVP success 訊息文字）
+- [X] T015 [P] 定義婚禮靜態常數於 `frontend/src/constants/wedding.ts`（`WEDDING.countdownTarget = new Date('2026-11-14T04:15:00Z')`、venue 正式資料已填入（全國大飯店 2F / 台灣臺中市西區館前路 57 號 / https://maps.app.goo.gl/CQz5TGweR5N8CgsQA）、couple English names（HE Bean / Katherine Zhou）、LINE URL/description/qrCodePath、RSVP success 訊息文字）
 - [X] T016 建立 `frontend/src/App.vue` shell，依序 import 並渲染：HeroSection、CountdownSection、CalendarSection、TimelineSection、InfoSection、GallerySection、RsvpSection、AppFooter；掛載 MusicToggle（全域浮動）
 - [X] T017 建立 `frontend/public/assets/` 子目錄（hero/、story/、gallery/、music/、og/、line/、ui/）並各放置 `.gitkeep` 佔位檔案
 
@@ -59,7 +59,7 @@
 
 **Goal**: 賓客可在手機或桌機完整瀏覽婚禮資訊頁面七個區塊 + Footer，背景音樂、音樂切換按鈕、LINE Footer 按鈕均正常運作
 
-**Independent Test**: 開啟 `http://localhost:5173`，在 375px 與 1440px 視窗寬度下完整滾動所有區塊，確認：倒數計時每秒更新目標至 2026-11-14 12:00 UTC+8、行事曆標示 11/14、時間軸動畫觸發、音樂切換按鈕始終可見、Footer LINE 按鈕開啟新分頁
+**Independent Test**: 開啟 `http://localhost:5173`，在 375px 與 1440px 視窗寬度下完整滾動所有區塊，確認：倒數計時每秒更新目標至 2026-11-14 12:15 UTC+8、行事曆標示 11/14、時間軸動畫觸發、音樂切換按鈕始終可見、Footer LINE 按鈕開啟新分頁
 
 ### Composables（可平行執行）
 
@@ -82,7 +82,7 @@
 - [X] T024 [US1] 建立 `CountdownSection` 元件於 `frontend/src/components/sections/CountdownSection.vue`（使用 `useCountdown`；顯示天/時/分/秒四欄；目標到達後顯示慶賀訊息取代計時器）
 - [X] T025 [P] [US1] 建立 `CalendarSection` 元件於 `frontend/src/components/sections/CalendarSection.vue`（2026 年 11 月完整日曆；11/14 以 SVG 心形輪廓框住數字標示；半透明玻璃感卡片；純前端計算，不依賴外部日曆套件）
 - [X] T026 [P] [US1] 建立 `TimelineSection` 元件於 `frontend/src/components/sections/TimelineSection.vue`（**黑色電影沉浸式區塊**；背景 `#0D0D0D`～`#1A1A1A`；film grain texture overlay（opacity ≤ 0.08）；垂直時間軸四個里程碑：2019/2021/2024/2026，奇偶左右交錯；Kodak 底片框（含齒孔細節）包覆故事圖片；年份使用 `font-script` 淡金色；文字白色 / 灰白 / 淡金色；`useIntersectionObserver` 觸發 fade-in + slow slide-in（700ms）；圖片來源 `assets/story/`；FR-005）
-- [X] T027 [P] [US1] 建立 `InfoSection` 元件於 `frontend/src/components/sections/InfoSection.vue`（婚禮日期 2026-11-14 12:00 UTC+8、地點名稱/地址/Google Maps 連結/交通資訊從 `WEDDING.venue` 讀取；**正式資料已填入**：全國大飯店 2F、台灣臺中市西區館前路 57 號、https://maps.app.goo.gl/CQz5TGweR5N8CgsQA；Maps 連結 `target="_blank" rel="noopener noreferrer"`）
+- [X] T027 [P] [US1] 建立 `InfoSection` 元件於 `frontend/src/components/sections/InfoSection.vue`（婚禮日期 2026-11-14 12:15 UTC+8、地點名稱/地址/Google Maps 連結/交通資訊從 `WEDDING.venue` 讀取；**正式資料已填入**：全國大飯店 2F、台灣臺中市西區館前路 57 號、https://maps.app.goo.gl/CQz5TGweR5N8CgsQA；Maps 連結 `target="_blank" rel="noopener noreferrer"`）
 - [X] T028 [P] [US1] 建立 `GallerySwiperSection` 元件於 `frontend/src/components/sections/GallerySwiperSection.vue`（安裝 `swiper` npm 套件；**黑色電影膠卷氛圍背景**；Swiper.js 輪播；Kodak 底片框外框（含齒孔）包覆圖片；手機觸控左右滑動；桌機 grab cursor + 箭頭切換；pagination dots 淡金色；loop mode；slidesPerView：手機 1、桌機 1.2；autoplay 關閉；`<img loading="lazy">`；圖片來源 `assets/gallery/`；MUST NOT 使用 coverflow/cube/flip；FR-007）；同步更新 `frontend/src/App.vue` 中 import 名稱
 
 ### Layout & 全域功能

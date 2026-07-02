@@ -37,4 +37,4 @@
 - v1 guest photo uploads do NOT auto-appear in the gallery — this assumption is documented.
 - Email confirmation is admin-only in v1 (no guest email field collected).
 - 2026-05-17 `/speckit-clarify` session 3: 3 additional clarifications integrated —
-  phone format (Taiwan mobile + landline), countdown target (2026-11-14 12:00 UTC+8), OG meta tags (FR-018 added).
+  phone format (Taiwan mobile + landline), countdown target (2026-11-14 12:15 UTC+8), OG meta tags (FR-018 added).

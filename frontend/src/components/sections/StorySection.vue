@@ -24,7 +24,7 @@
     </p>
     <div class="max-w-[800px] mx-auto">
       <img
-        src="/assets/gallery/photo-19.jpg"
+        src="/assets/gallery/photo-22.jpg"
         alt="Wedding Story"
         class="mx-auto mt-6 rounded-lg shadow-lg border border-wedding-stone/50"
       />

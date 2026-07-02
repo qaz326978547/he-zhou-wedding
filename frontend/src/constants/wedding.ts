@@ -5,10 +5,10 @@ export const WEDDING = {
   },
   date: "2026-11-14",
   dateDisplay: "2026 年 11 月 14 日 星期六",
-  time: "12:30",
+  time: "12:15",
   timezone: "Asia/Taipei",
-  // 2026-11-14 12:30 UTC+8 = 04:30 UTC
-  countdownTarget: new Date("2026-11-14T04:30:00Z"),
+  // 2026-11-14 12:15 UTC+8 = 04:15 UTC
+  countdownTarget: new Date("2026-11-14T04:15:00Z"),
 
   venue: {
     name: "全國大飯店 2F 草悟廳",

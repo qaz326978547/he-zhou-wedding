@@ -110,7 +110,7 @@ while (day <= 30) {
           2026年11月14日 星期六
         </p>
         <p class="mt-3 font-display text-base tracking-[0.2em] text-white/90">
-          12:30 PM
+          12:15 PM
         </p>
       </div>
     </div>

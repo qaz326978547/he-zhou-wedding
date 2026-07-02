@@ -224,7 +224,7 @@ const rsvpSchema = z.object({
 
 **所有 NEEDS CLARIFICATION 已解決**：
 - 電話格式：台灣手機 + 市話（DR-007）
-- 婚禮時間：2026-11-14 12:00 UTC+8（spec.md FR-003）
+- 婚禮時間：2026-11-14 12:15 UTC+8（spec.md FR-003）
 - OG meta tags：靜態 index.html 方案（DR-010）
 - guestCount 上限：10（spec.md FR-008）
 - 成功畫面持續性：Vue 元件記憶體狀態（spec.md FR-012）

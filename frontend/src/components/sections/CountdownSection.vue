@@ -10,7 +10,7 @@ function pad(n: number): string {
 
 <template>
   <section
-    class="relative text-center px-6 bg-[url('/assets/gallery/photo-12.jpg')] bg-contain bg-center bg-no-repeat aspect-[1365/2048] md:max-w-[800px] md:mx-auto overflow-hidden"
+    class="relative text-center px-6 bg-[url('/assets/gallery/photo-21.jpg')] bg-contain bg-center bg-no-repeat aspect-[1365/2048] md:max-w-[800px] md:mx-auto overflow-hidden"
   >
     <div
       class="absolute inset-0 bg-gradient-to-b from-black/35 via-black/20 to-black/25"

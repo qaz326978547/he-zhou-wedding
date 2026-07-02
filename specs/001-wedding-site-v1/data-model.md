@@ -148,9 +148,9 @@ v1 婚禮靜態資訊以前端常數管理，無需資料庫儲存。
 // src/constants/wedding.ts
 export const WEDDING = {
   date: '2026-11-14',
-  time: '12:00',
+  time: '12:15',
   timezone: 'Asia/Taipei', // UTC+8
-  countdownTarget: new Date('2026-11-14T04:00:00Z'), // 12:00 UTC+8 = 04:00 UTC
+  countdownTarget: new Date('2026-11-14T04:15:00Z'), // 12:15 UTC+8 = 04:15 UTC
   venue: {
     name: '', // 部署前填入
     address: '', // 部署前填入
