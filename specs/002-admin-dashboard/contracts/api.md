@@ -159,9 +159,9 @@ Authorization: Bearer <JWT token>
 | relationshipType | "relative" \| "friend" | — | 關係類型；需先設定 relationshipSide |
 | dietaryPreference | "regular" \| "vegetarian" | — | 飲食偏好；預設 "regular" |
 | needsInvitation | boolean | — | 是否需要紙本喜帖；預設 false |
-| invitationName | string | — | 收件人姓名；needsInvitation = true 時有意義 |
-| invitationPhone | string | — | 收件人電話；needsInvitation = true 時有意義 |
-| invitationAddress | string | — | 收件地址；needsInvitation = true 時有意義 |
+| invitationName | string \| null | — | 收件人姓名；needsInvitation = true 時有意義 |
+| invitationPhone | string \| null | — | 收件人電話；needsInvitation = true 時有意義 |
+| invitationAddress | string \| null | — | 收件地址；needsInvitation = true 時有意義 |
 
 ### 回應
 

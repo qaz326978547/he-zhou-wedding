@@ -1,48 +1,58 @@
-import { z } from 'zod'
+import { z } from "zod";
 
-const TAIWAN_PHONE = /^09\d{8}$|^0[2-9]\d{7,8}$/
+const TAIWAN_PHONE = /^09\d{8}$|^0[2-9]\d{7,8}$/;
 
-const DIETARY = z.enum(['regular', 'vegetarian'])
-const SIDE = z.enum(['groom', 'bride'])
-const REL_TYPE = z.enum(['relative', 'friend'])
+const DIETARY = z.enum(["regular", "vegetarian"]);
+const SIDE = z.enum(["groom", "bride"]);
+const REL_TYPE = z.enum(["relative", "friend"]);
 
-const relationshipRefinement = (d: { relationshipType?: string; relationshipSide?: string }) =>
-  !(d.relationshipType && !d.relationshipSide)
+const relationshipRefinement = (d: {
+  relationshipType?: string;
+  relationshipSide?: string;
+}) => !(d.relationshipType && !d.relationshipSide);
 
 // Admin create schema: name/phone required, guest counts optional/nullable
 export const adminCreateRsvpSchema = z
   .object({
-    name: z.string().min(1, '請填寫姓名'),
-    phone: z.string().regex(TAIWAN_PHONE, '請輸入台灣手機（09 開頭）或市話格式'),
+    name: z.string().min(1, "請填寫姓名"),
+    phone: z
+      .string()
+      .regex(TAIWAN_PHONE, "請輸入台灣手機（09 開頭）或市話格式"),
     adultCount: z.number().int().min(1).max(10).nullable().optional(),
     childCount: z.number().int().min(0).max(10).nullable().optional(),
     needsHighchair: z.boolean().nullable().optional(),
     highchairCount: z.number().int().min(1).max(10).nullable().optional(),
     relationshipSide: SIDE.optional(),
     relationshipType: REL_TYPE.optional(),
-    dietaryPreference: DIETARY.default('regular'),
+    dietaryPreference: DIETARY.default("regular"),
     needsInvitation: z.boolean().default(false),
-    invitationName: z.string().optional(),
-    invitationPhone: z.string().optional(),
-    invitationAddress: z.string().optional(),
+    invitationName: z.string().nullable().optional(),
+    invitationPhone: z.string().nullable().optional(),
+    invitationAddress: z.string().nullable().optional(),
   })
-  .refine(relationshipRefinement, { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] })
+  .refine(relationshipRefinement, {
+    message: "選擇關係類型前必須先選擇賓桌歸屬",
+    path: ["relationshipType"],
+  })
   .refine(
     (d) => {
-      if (d.needsHighchair !== true) return true
-      if (!d.childCount || !d.highchairCount) return true
-      return d.highchairCount <= d.childCount
+      if (d.needsHighchair !== true) return true;
+      if (!d.childCount || !d.highchairCount) return true;
+      return d.highchairCount <= d.childCount;
     },
-    { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
-  )
+    { message: "兒童椅張數不能超過小孩人數", path: ["highchairCount"] },
+  );
 
-export type AdminCreateRsvpInput = z.infer<typeof adminCreateRsvpSchema>
+export type AdminCreateRsvpInput = z.infer<typeof adminCreateRsvpSchema>;
 
 // Admin update schema: all fields optional
 export const adminRsvpSchema = z
   .object({
-    name: z.string().min(1, '請填寫姓名').optional(),
-    phone: z.string().regex(TAIWAN_PHONE, '請輸入台灣手機（09 開頭）或市話格式').optional(),
+    name: z.string().min(1, "請填寫姓名").optional(),
+    phone: z
+      .string()
+      .regex(TAIWAN_PHONE, "請輸入台灣手機（09 開頭）或市話格式")
+      .optional(),
     attending: z.boolean().optional(),
     adultCount: z.number().int().min(1).max(10).nullable().optional(),
     childCount: z.number().int().min(0).max(10).nullable().optional(),
@@ -52,18 +62,21 @@ export const adminRsvpSchema = z
     relationshipType: REL_TYPE.optional(),
     dietaryPreference: DIETARY.optional(),
     needsInvitation: z.boolean().optional(),
-    invitationName: z.string().optional(),
-    invitationPhone: z.string().optional(),
-    invitationAddress: z.string().optional(),
+    invitationName: z.string().nullable().optional(),
+    invitationPhone: z.string().nullable().optional(),
+    invitationAddress: z.string().nullable().optional(),
   })
-  .refine(relationshipRefinement, { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] })
+  .refine(relationshipRefinement, {
+    message: "選擇關係類型前必須先選擇賓桌歸屬",
+    path: ["relationshipType"],
+  })
   .refine(
     (d) => {
-      if (d.needsHighchair !== true) return true
-      if (!d.childCount || !d.highchairCount) return true
-      return d.highchairCount <= d.childCount
+      if (d.needsHighchair !== true) return true;
+      if (!d.childCount || !d.highchairCount) return true;
+      return d.highchairCount <= d.childCount;
     },
-    { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
-  )
+    { message: "兒童椅張數不能超過小孩人數", path: ["highchairCount"] },
+  );
 
-export type AdminRsvpInput = z.infer<typeof adminRsvpSchema>
+export type AdminRsvpInput = z.infer<typeof adminRsvpSchema>;

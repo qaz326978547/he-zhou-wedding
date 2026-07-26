@@ -115,6 +115,8 @@ JWT token MUST 儲存於前端 `localStorage`（key: `admin_token`）；有效�
 
 列表上方 MUST 提供即時搜尋輸入框，依姓名或電話號碼關鍵字即時篩選列表（前端 computed，不呼叫額外 API）；無符合結果時顯示「找不到符合的紀錄」。
 
+列表上方 MUST 提供「全部 / 新郎親友 / 新娘親友」篩選 Tab 按鈕，依 `relationshipSide` 欄位篩選列表（前端 computed，不呼叫額外 API）；預設選取「全部」；篩選與搜尋可同時套用（先依 Tab 篩選 relationshipSide，再依關鍵字篩選姓名/電話）；`relationshipSide` 為 null 的紀錄僅顯示於「全部」；篩選後統計摘要（總回覆筆數、總出席人數）與 CSV 匯出資料範圍不受影響，仍以完整列表為準。
+
 列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、adultCount（大人）、childCount（小孩）、needsHighchair（兒童椅）、highchairCount（幾張）、relationshipSide、relationshipType、dietaryPreference（regular / vegetarian）、needsInvitation、invitationName / invitationPhone / invitationAddress（當 needsInvitation = true 時）、createdAt（UTC+8）、notificationEmailSent。出席狀態（attending）欄位儲存於資料庫但不顯示於後台 UI。
 
 #### FR-A006 新增 RSVP
