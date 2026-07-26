@@ -95,7 +95,7 @@
 - [x] T018 [P] 確認 Zeabur frontend 服務 SPA fallback 設定：直接訪問 `https://hezhouwedding.com/admin` 不出現 404（若出現，至 Zeabur Dashboard → frontend → Settings 開啟 SPA mode）
 - [x] T019 依照 `specs/002-admin-dashboard/quickstart.md` 執行本地驗證清單（`POST /api/admin/login` 正確帳密 → 200；錯誤帳密 → 401；無 token 訪問 `/api/admin/rsvp` → 401；CRUD 全流程通過；前台不受影響）
 - [x] T021 [P] [US2] 修正 highchairCount 上限邏輯（不可超過 childCount）：後端 `rsvpSchema.ts`、`adminRsvpSchema.ts` 加入 refine（highchairCount ≤ childCount）；前端 `useRsvp.ts` 加入 watch 自動修正；`RsvpSection.vue`、`RsvpModal.vue`、`AdminDashboard.vue` 改 v-for 選項動態限制為 childCount；同步更新 spec.md / data-model.md / contracts/api.md
-- [x] T022 [P] [US2] `AdminDashboard.vue` Actions 區塊新增「全部 / 新郎親友 / 新娘親友」篩選 Tab（`sideFilter` ref，預設 `'all'`）；`filteredList` computed 先依 `sideFilter` 篩選 `relationshipSide`（`'all'` 不篩選），再依 `search` 關鍵字篩選；統計摘要與 CSV 匯出維持以完整 `rsvpList` 為資料源不受影響；同步更新 spec.md FR-A005
+- [x] T022 [P] [US2] `AdminDashboard.vue` Actions 區塊新增「全部 / 新郎親友 / 新娘親友」篩選 Tab（`sideFilter` ref，預設 `'all'`）；新增 `sideFilteredList` computed 僅依 `sideFilter` 篩選 `relationshipSide`（`'all'` 不篩選，不受搜尋關鍵字影響）；`filteredList`（表格/卡片顯示用）在 `sideFilteredList` 基礎上再依 `search` 關鍵字篩選；統計摘要（總回覆筆數、總出席人數）與 CSV 匯出改以 `sideFilteredList` 為資料源，隨 Tab 切換同步變更；同步更新 spec.md FR-A005 / FR-A011
 - [ ] T020 [P] 手動測試生產環境 `https://hezhouwedding.com/admin` 完整流程：登入 → 列表顯示 → 統計摘要 → 搜尋 → 新增（Modal）→ 修改（Inline）→ 刪除；分別在手機（375px）與桌機（1440px）確認 RWD 佈局正確
 
 ---

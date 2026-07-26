@@ -115,7 +115,7 @@ JWT token MUST 儲存於前端 `localStorage`（key: `admin_token`）；有效�
 
 列表上方 MUST 提供即時搜尋輸入框，依姓名或電話號碼關鍵字即時篩選列表（前端 computed，不呼叫額外 API）；無符合結果時顯示「找不到符合的紀錄」。
 
-列表上方 MUST 提供「全部 / 新郎親友 / 新娘親友」篩選 Tab 按鈕，依 `relationshipSide` 欄位篩選列表（前端 computed，不呼叫額外 API）；預設選取「全部」；篩選與搜尋可同時套用（先依 Tab 篩選 relationshipSide，再依關鍵字篩選姓名/電話）；`relationshipSide` 為 null 的紀錄僅顯示於「全部」；篩選後統計摘要（總回覆筆數、總出席人數）與 CSV 匯出資料範圍不受影響，仍以完整列表為準。
+列表上方 MUST 提供「全部 / 新郎親友 / 新娘親友」篩選 Tab 按鈕，依 `relationshipSide` 欄位篩選列表（前端 computed，不呼叫額外 API）；預設選取「全部」；篩選與搜尋可同時套用（先依 Tab 篩選 relationshipSide，再依關鍵字篩選姓名/電話）；`relationshipSide` 為 null 的紀錄僅顯示於「全部」；選取 Tab 後統計摘要（總回覆筆數、總出席人數）MUST 同步以該 Tab 篩選後的資料重新計算（不受搜尋關鍵字影響）；CSV 匯出（FR-A011）資料範圍 MUST 依當前選取的 Tab 調整（不受搜尋關鍵字影響）。
 
 列表 MUST 顯示所有 `RSVPSubmission` 資料，欄位包含：id、name、phone、adultCount（大人）、childCount（小孩）、needsHighchair（兒童椅）、highchairCount（幾張）、relationshipSide、relationshipType、dietaryPreference（regular / vegetarian）、needsInvitation、invitationName / invitationPhone / invitationAddress（當 needsInvitation = true 時）、createdAt（UTC+8）、notificationEmailSent。出席狀態（attending）欄位儲存於資料庫但不顯示於後台 UI。
 
@@ -135,7 +135,7 @@ JWT token MUST 儲存於前端 `localStorage`（key: `admin_token`）；有效�
 後台功能 MUST 與前台婚禮網站完全獨立；後台操作（含刪除）MUST NOT 影響前台正常運作。
 
 #### FR-A011 匯出 CSV
-主辦人 MUST 可點擊「匯出 CSV」按鈕，下載包含所有 RSVP 資料的 CSV 檔案；檔名格式為 `RSVP_YYYYMMDD.csv`；CSV 欄位包含：編號、姓名、電話、大人幾位、小孩幾位、兒童椅（含張數）、賓桌歸屬、關係類型、飲食偏好、紙本喜帖、收件人、收件電話、收件地址、提交時間（UTC+8）、通知信已發送；檔案末段附統計摘要區塊（總回覆筆數、總出席人數）；檔案加 UTF-8 BOM 確保 Excel 正確顯示中文。匯出資料以前端已載入的完整列表為來源（不需額外 API）。
+主辦人 MUST 可點擊「匯出 CSV」按鈕，下載包含當前選取 Tab（全部 / 新郎親友 / 新娘親友）篩選後 RSVP 資料的 CSV 檔案（不受搜尋關鍵字影響）；檔名格式為 `RSVP_YYYYMMDD.csv`；CSV 欄位包含：編號、姓名、電話、大人幾位、小孩幾位、兒童椅（含張數）、賓桌歸屬、關係類型、飲食偏好、紙本喜帖、收件人、收件電話、收件地址、提交時間（UTC+8）、通知信已發送；檔案末段附統計摘要區塊（總回覆筆數、總出席人數，皆以當前 Tab 篩選後資料計算）；檔案加 UTF-8 BOM 確保 Excel 正確顯示中文。匯出資料以前端已載入、依當前 Tab 篩選後的列表為來源（不需額外 API）。
 
 ### Key Entities
 

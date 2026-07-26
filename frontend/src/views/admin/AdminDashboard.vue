@@ -34,7 +34,7 @@
       <div class="grid grid-cols-2 gap-3">
         <div class="bg-white rounded-xl shadow-sm p-4 text-center">
           <div class="text-2xl font-bold text-gray-800">
-            {{ rsvpList.length }}
+            {{ sideFilteredList.length }}
           </div>
           <div class="text-xs text-gray-500 mt-1">總回覆筆數</div>
         </div>
@@ -48,22 +48,6 @@
 
       <!-- Actions -->
       <div class="flex gap-3 items-center flex-wrap">
-        <!-- 這邊加入篩選新郎親友,新娘親友的Tab按鈕 -->
-        <div class="flex rounded-lg border border-gray-300 overflow-hidden">
-          <button
-            v-for="tab in sideTabs"
-            :key="tab.value"
-            @click="sideFilter = tab.value"
-            :class="[
-              'px-3 py-2 text-sm whitespace-nowrap transition',
-              sideFilter === tab.value
-                ? 'bg-gray-800 text-white'
-                : 'bg-white text-gray-600 hover:bg-gray-100',
-            ]"
-          >
-            {{ tab.label }}
-          </button>
-        </div>
         <input
           v-model="search"
           type="text"
@@ -82,6 +66,22 @@
         >
           新增 RSVP
         </button>
+        <!-- 這邊加入篩選新郎親友,新娘親友的Tab按鈕 -->
+        <div class="flex rounded-lg border border-gray-300 overflow-hidden">
+          <button
+            v-for="tab in sideTabs"
+            :key="tab.value"
+            @click="sideFilter = tab.value"
+            :class="[
+              'px-3 py-2 text-sm whitespace-nowrap transition',
+              sideFilter === tab.value
+                ? 'bg-gray-800 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-100',
+            ]"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
 
       <!-- Mobile cards (< md) -->
@@ -533,8 +533,15 @@ const editLoading = ref(false);
 const editError = ref("");
 const loadError = ref(false);
 
+const sideFilteredList = computed(() => {
+  if (sideFilter.value === "all") return rsvpList.value;
+  return rsvpList.value.filter(
+    (r: any) => r.relationshipSide === sideFilter.value,
+  );
+});
+
 const stats = computed(() => ({
-  totalGuests: rsvpList.value.reduce(
+  totalGuests: sideFilteredList.value.reduce(
     (sum, r) => sum + (r.adultCount || 0) + (r.childCount || 0),
     0,
   ),
@@ -542,12 +549,10 @@ const stats = computed(() => ({
 
 const filteredList = computed(() => {
   const kw = search.value.trim().toLowerCase();
-  return rsvpList.value.filter((r: any) => {
-    if (sideFilter.value !== "all" && r.relationshipSide !== sideFilter.value)
-      return false;
-    if (!kw) return true;
-    return r.name?.toLowerCase().includes(kw) || r.phone?.includes(kw);
-  });
+  if (!kw) return sideFilteredList.value;
+  return sideFilteredList.value.filter(
+    (r: any) => r.name?.toLowerCase().includes(kw) || r.phone?.includes(kw),
+  );
 });
 
 onMounted(loadList);
@@ -703,7 +708,7 @@ function exportCsv() {
   const highchairLabel = (v: boolean | null, count?: number | null) =>
     v === true ? `需要 ${count ?? 1} 張` : v === false ? "不需要" : "";
 
-  const rows = rsvpList.value.map((r) => [
+  const rows = sideFilteredList.value.map((r) => [
     r.id,
     r.name,
     r.phone,
@@ -724,7 +729,7 @@ function exportCsv() {
   const summaryRows = [
     [],
     ["【統計摘要】"],
-    ["總回覆筆數", rsvpList.value.length],
+    ["總回覆筆數", sideFilteredList.value.length],
     ["總出席人數（大人+小孩）", stats.value.totalGuests],
   ];
 
