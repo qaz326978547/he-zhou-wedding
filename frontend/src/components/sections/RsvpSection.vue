@@ -333,10 +333,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <p
           class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
-          賓桌歸屬
-          <span class="text-wedding-mist/70 normal-case tracking-normal"
-            >（選填）</span
-          >
+          賓桌歸屬 <span class="text-red-400">*</span>
         </p>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
@@ -360,6 +357,9 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
             <span class="text-wedding-charcoal text-sm">新娘親友</span>
           </label>
         </div>
+        <p v-if="errors.relationshipSide" class="text-red-400 mt-1">
+          {{ errors.relationshipSide }}
+        </p>
       </div>
 
       <!-- Relationship Type -->
@@ -367,10 +367,7 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
         <p
           class="text-wedding-gold font-display tracking-widest uppercase mb-3"
         >
-          關係類型
-          <span class="text-wedding-mist/70 normal-case tracking-normal"
-            >（選填）</span
-          >
+          關係類型 <span class="text-red-400">*</span>
         </p>
         <div class="flex gap-6">
           <label class="flex items-center gap-2 cursor-pointer min-h-[44px]">
@@ -394,6 +391,9 @@ const CHILD_OPTIONS = Array.from({ length: 11 }, (_, i) => i);
             <span class="text-wedding-charcoal text-sm">朋友</span>
           </label>
         </div>
+        <p v-if="errors.relationshipType" class="text-red-400 mt-1">
+          {{ errors.relationshipType }}
+        </p>
       </div>
 
       <!-- Dietary Preference -->

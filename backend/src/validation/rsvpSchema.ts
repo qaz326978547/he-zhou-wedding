@@ -3,8 +3,8 @@ import { z } from 'zod'
 const TAIWAN_PHONE = /^09\d{8}$|^0[2-9]\d{7,8}$/
 
 const DIETARY = z.enum(['regular', 'vegetarian'])
-const SIDE = z.enum(['groom', 'bride'])
-const REL_TYPE = z.enum(['relative', 'friend'])
+const SIDE = z.enum(['groom', 'bride'], { required_error: '請選擇賓桌歸屬', invalid_type_error: '請選擇賓桌歸屬' })
+const REL_TYPE = z.enum(['relative', 'friend'], { required_error: '請選擇關係類型', invalid_type_error: '請選擇關係類型' })
 
 export const rsvpSchema = z
   .object({
@@ -15,8 +15,8 @@ export const rsvpSchema = z
     childCount: z.number().int().min(0).max(10).nullable().optional(),
     needsHighchair: z.boolean().nullable().optional(),
     highchairCount: z.number().int().min(1).max(10).nullable().optional(),
-    relationshipSide: SIDE.optional(),
-    relationshipType: REL_TYPE.optional(),
+    relationshipSide: SIDE,
+    relationshipType: REL_TYPE,
     dietaryPreference: DIETARY.default('regular'),
     needsInvitation: z.boolean().default(false),
     invitationName: z.string().min(1).optional(),
@@ -52,10 +52,6 @@ export const rsvpSchema = z
       return d.highchairCount <= d.childCount
     },
     { message: '兒童椅張數不能超過小孩人數', path: ['highchairCount'] },
-  )
-  .refine(
-    (d) => !(d.relationshipType && !d.relationshipSide),
-    { message: '選擇關係類型前必須先選擇賓桌歸屬', path: ['relationshipType'] },
   )
   .refine(
     (d) => !d.needsInvitation || !!d.invitationName?.trim(),

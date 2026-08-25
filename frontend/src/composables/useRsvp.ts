@@ -72,6 +72,14 @@ export function useRsvp() {
         valid = false
       }
     }
+    if (!form.relationshipSide) {
+      errors.relationshipSide = '請選擇賓桌歸屬'
+      valid = false
+    }
+    if (form.relationshipSide && !form.relationshipType) {
+      errors.relationshipType = '請選擇關係類型'
+      valid = false
+    }
     if (form.needsInvitation) {
       if (!form.invitationName.trim()) {
         errors.invitationName = '請填寫收件人姓名'
@@ -120,8 +128,8 @@ export function useRsvp() {
         if (form.needsHighchair === true) payload.highchairCount = form.highchairCount
       }
     }
-    if (form.relationshipSide) payload.relationshipSide = form.relationshipSide
-    if (form.relationshipSide && form.relationshipType) payload.relationshipType = form.relationshipType
+    payload.relationshipSide = form.relationshipSide as 'groom' | 'bride'
+    payload.relationshipType = form.relationshipType as 'relative' | 'friend'
     if (form.needsInvitation) {
       payload.invitationName = form.invitationName.trim()
       payload.invitationPhone = form.invitationPhone.trim()
