@@ -227,6 +227,7 @@
             </div>
             <div class="text-sm text-gray-500 space-y-0.5">
               <div>電話：{{ item.phone }}</div>
+              <div>是否參加：{{ attendingLabel(item) }}</div>
               <div>
                 大人：{{ item.adultCount ?? "--" }} 位　小孩：{{
                   item.childCount ?? "--"
@@ -298,6 +299,7 @@
             <tr>
               <th class="px-4 py-3 text-left">姓名</th>
               <th class="px-4 py-3 text-left">電話</th>
+              <th class="px-4 py-3 text-left">是否參加</th>
               <th class="px-4 py-3 text-left">大人</th>
               <th class="px-4 py-3 text-left">小孩</th>
               <th class="px-4 py-3 text-left">兒童椅</th>
@@ -311,7 +313,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="filteredList.length === 0">
-              <td colspan="11" class="px-4 py-8 text-center text-gray-400">
+              <td colspan="12" class="px-4 py-8 text-center text-gray-400">
                 找不到符合的紀錄
               </td>
             </tr>
@@ -326,6 +328,9 @@
                 </td>
                 <td class="px-2 py-2">
                   <input v-model="editForm.phone" class="edit-input w-32" />
+                </td>
+                <td class="px-4 py-2 text-gray-600">
+                  {{ attendingLabel(editForm) }}
                 </td>
                 <td class="px-2 py-2">
                   <select v-model="editForm.adultCount" class="edit-input w-16">
@@ -433,6 +438,14 @@
                   {{ item.name }}
                 </td>
                 <td class="px-4 py-3 text-gray-600">{{ item.phone }}</td>
+                <td class="px-4 py-3">
+                  <span
+                    :class="
+                      isAttending(item) ? 'text-green-600' : 'text-gray-400'
+                    "
+                    >{{ attendingLabel(item) }}</span
+                  >
+                </td>
                 <td class="px-4 py-3 text-gray-600">
                   {{ item.adultCount ?? "--" }}
                 </td>
@@ -539,6 +552,14 @@ const sideFilteredList = computed(() => {
     (r: any) => r.relationshipSide === sideFilter.value,
   );
 });
+
+function isAttending(r: any): boolean {
+  return (Number(r.adultCount) || 0) + (Number(r.childCount) || 0) > 0;
+}
+
+function attendingLabel(r: any): string {
+  return isAttending(r) ? "參加" : "不參加";
+}
 
 const stats = computed(() => ({
   totalGuests: sideFilteredList.value.reduce(
@@ -687,6 +708,7 @@ function exportCsv() {
     "編號",
     "姓名",
     "電話",
+    "是否參加",
     "大人幾位",
     "小孩幾位",
     "兒童椅",
@@ -712,6 +734,7 @@ function exportCsv() {
     r.id,
     r.name,
     r.phone,
+    attendingLabel(r),
     r.adultCount ?? "",
     r.childCount ?? "",
     highchairLabel(r.needsHighchair, r.highchairCount),
@@ -730,6 +753,11 @@ function exportCsv() {
     [],
     ["【統計摘要】"],
     ["總回覆筆數", sideFilteredList.value.length],
+    ["參加筆數", sideFilteredList.value.filter(isAttending).length],
+    [
+      "不參加筆數",
+      sideFilteredList.value.filter((r) => !isAttending(r)).length,
+    ],
     ["總出席人數（大人+小孩）", stats.value.totalGuests],
   ];
 
