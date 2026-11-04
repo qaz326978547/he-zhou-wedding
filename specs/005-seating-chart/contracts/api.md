@@ -21,6 +21,10 @@
 
 Body：`{ "label": "新郎同事", "capacity": 11 }`（兩欄皆選填，未傳入者不更新；`label` 空字串視為清除；`capacity` 1–12，不可少於已安排人數）→ `200 { data: { tableNo, label, capacity } }`
 
+## POST `/api/admin/seating/tables/swap`
+
+Body：`{ "a": 6, "b": 7 }`（兩桌不可相同）→ `200`，回傳與 `GET /api/admin/seating` 相同格式的最新資料。兩桌的賓客、桌名、座位數一併交換。
+
 ## POST `/api/admin/seating/guests`
 
 Body：`{ "tableNo": 3, "name": "王小明", "count": 3, "note": "素食", "rsvpId": 12 }`（`note`、`rsvpId` 可省略）→ `201 { data: SeatGuest }`

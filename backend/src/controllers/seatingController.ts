@@ -7,6 +7,7 @@ import {
   MAX_TABLE_NO,
   seatGuestSchema,
   seatTableSchema,
+  swapTablesSchema,
   MAX_TABLE_CAPACITY,
 } from '../validation/seatingSchema'
 
@@ -103,6 +104,34 @@ async function updateSeatTableImpl(req: Request, res: Response) {
   return res.json({ data: record })
 }
 
+/** 兩桌整桌互換：賓客、桌名、座位數一起交換，因此不會發生超額 */
+async function swapSeatTablesImpl(req: Request, res: Response) {
+  const result = swapTablesSchema.safeParse(req.body)
+  if (!result.success) return validationError(res, result.error)
+  const { a, b } = result.data
+
+  await prisma.$transaction(async (tx) => {
+    const [guestsA, tableA, tableB] = await Promise.all([
+      tx.seatGuest.findMany({ where: { tableNo: a }, select: { id: true } }),
+      tx.seatTable.findUnique({ where: { tableNo: a } }),
+      tx.seatTable.findUnique({ where: { tableNo: b } }),
+    ])
+    // 先記下 A 桌賓客 id，再把 B 桌移到 A，最後把原 A 桌賓客移到 B
+    await tx.seatGuest.updateMany({ where: { tableNo: b }, data: { tableNo: a } })
+    await tx.seatGuest.updateMany({
+      where: { id: { in: guestsA.map((g) => g.id) } },
+      data: { tableNo: b },
+    })
+
+    const settingsA = { label: tableA?.label ?? null, capacity: tableA?.capacity ?? TABLE_CAPACITY }
+    const settingsB = { label: tableB?.label ?? null, capacity: tableB?.capacity ?? TABLE_CAPACITY }
+    await tx.seatTable.upsert({ where: { tableNo: a }, create: { tableNo: a, ...settingsB }, update: settingsB })
+    await tx.seatTable.upsert({ where: { tableNo: b }, create: { tableNo: b, ...settingsA }, update: settingsA })
+  })
+
+  return listSeatingImpl(req, res)
+}
+
 async function createSeatGuestImpl(req: Request, res: Response) {
   const result = seatGuestSchema.safeParse(req.body)
   if (!result.success) return validationError(res, result.error)
@@ -186,6 +215,7 @@ function safe(fn: (req: Request, res: Response) => Promise<unknown>): RequestHan
 
 export const listSeating = safe(listSeatingImpl)
 export const updateSeatTable = safe(updateSeatTableImpl)
+export const swapSeatTables = safe(swapSeatTablesImpl)
 export const createSeatGuest = safe(createSeatGuestImpl)
 export const updateSeatGuest = safe(updateSeatGuestImpl)
 export const deleteSeatGuest = safe(deleteSeatGuestImpl)

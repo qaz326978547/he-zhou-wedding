@@ -43,4 +43,8 @@ export const seatTableSchema = z.object({
     .optional(),
 })
 
+export const swapTablesSchema = z
+  .object({ a: tableNo, b: tableNo })
+  .refine((v) => v.a !== v.b, { message: '請選擇不同的兩桌' })
+
 export type SeatGuestInput = z.infer<typeof seatGuestSchema>

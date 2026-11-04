@@ -119,7 +119,7 @@
                   <button @click="startEditLabel" class="text-xs text-gray-400 hover:text-gray-600 underline whitespace-nowrap">改桌名</button>
                 </div>
                 <div v-else class="flex items-center gap-1 mt-1">
-                  <input v-model="labelDraft" maxlength="20" placeholder="例如：主桌、新郎同事" class="edit-input" @keydown.enter="saveLabel" />
+                  <input v-model="labelDraft" maxlength="20" placeholder="例如：主桌、新郎同事" class="edit-input" @keydown.enter="onLabelEnter" />
                   <button @click="saveLabel" :disabled="labelSaving" class="small-btn bg-gray-800 text-white disabled:opacity-50">儲存</button>
                   <button @click="editingLabel = false" class="small-btn border border-gray-300 text-gray-600">取消</button>
                 </div>
@@ -197,7 +197,7 @@
             </ul>
 
             <!-- Add guest -->
-            <form @submit.prevent="addGuest" class="border-t pt-4 space-y-2">
+            <form @submit.prevent="addGuest" @keydown.enter="blockImeEnter" class="border-t pt-4 space-y-2">
               <div class="text-sm font-medium text-gray-700">新增賓客到此桌</div>
               <div class="grid grid-cols-6 gap-2">
                 <input v-model="addForm.name" placeholder="姓名" maxlength="50" class="edit-input col-span-4" />
@@ -209,6 +209,28 @@
                 {{ remaining(selectedTable) === 0 ? '此桌已滿（可按右上「＋」加座）' : addLoading ? '新增中...' : '加入此桌' }}
               </button>
             </form>
+
+            <!-- Swap tables -->
+            <div class="border-t pt-4 space-y-2">
+              <div class="text-sm font-medium text-gray-700">與其他桌整桌互換</div>
+              <div class="flex gap-2">
+                <select v-model="swapTarget" class="edit-input">
+                  <option :value="null" disabled>選擇要互換的桌</option>
+                  <option v-for="t in TABLE_LAYOUT.filter((x) => x.no !== selectedTable)" :key="t.no" :value="t.no">
+                    {{ tableName(t.no) }}（{{ seatedAt(t.no) }}/{{ capacityOf(t.no) }}）
+                  </option>
+                </select>
+                <button
+                  @click="swapTables"
+                  :disabled="swapTarget === null || swapLoading"
+                  class="small-btn bg-gray-800 text-white disabled:opacity-50 px-4"
+                >
+                  {{ swapLoading ? '互換中...' : '互換' }}
+                </button>
+              </div>
+              <p class="text-xs text-gray-400">兩桌的賓客、桌名、座位數會一起交換</p>
+              <p v-if="swapError" class="text-red-500 text-xs">{{ swapError }}</p>
+            </div>
           </div>
 
           <div v-else class="bg-white rounded-xl shadow-sm p-6 text-center text-sm text-gray-500">
@@ -285,6 +307,9 @@ const labels = ref<Record<number, string | null>>({})
 const capacities = ref<Record<number, number>>({})
 const capacitySaving = ref(false)
 const capacityError = ref('')
+const swapTarget = ref<number | null>(null)
+const swapLoading = ref(false)
+const swapError = ref('')
 const rsvpList = ref<any[]>([])
 const loadError = ref(false)
 
@@ -376,6 +401,12 @@ function apiError(err: any, fallback: string) {
 
 onMounted(loadAll)
 
+function applySeating(data: any) {
+  guests.value = data.guests
+  labels.value = Object.fromEntries(data.tables.map((t: any) => [t.tableNo, t.label]))
+  capacities.value = Object.fromEntries(data.tables.map((t: any) => [t.tableNo, t.capacity]))
+}
+
 async function loadAll() {
   loadError.value = false
   try {
@@ -383,9 +414,7 @@ async function loadAll() {
       adminApi.get('/api/admin/seating'),
       adminApi.get('/api/admin/rsvp'),
     ])
-    guests.value = seatRes.data.data.guests
-    labels.value = Object.fromEntries(seatRes.data.data.tables.map((t: any) => [t.tableNo, t.label]))
-    capacities.value = Object.fromEntries(seatRes.data.data.tables.map((t: any) => [t.tableNo, t.capacity]))
+    applySeating(seatRes.data.data)
     rsvpList.value = rsvpRes.data.data
   } catch {
     loadError.value = true
@@ -398,6 +427,8 @@ async function selectTable(no: number) {
   editingLabel.value = false
   addError.value = ''
   capacityError.value = ''
+  swapTarget.value = null
+  swapError.value = ''
   rsvpError.value = ''
   if (window.innerWidth < 768) {
     await nextTick()
@@ -423,6 +454,36 @@ async function saveLabel() {
     window.alert(apiError(err, '桌名儲存失敗'))
   } finally {
     labelSaving.value = false
+  }
+}
+
+/** 輸入法（注音、拼音）選字時按下的 Enter，不應視為送出 */
+function isImeEnter(e: KeyboardEvent) {
+  return e.isComposing || e.keyCode === 229
+}
+function blockImeEnter(e: KeyboardEvent) {
+  if (isImeEnter(e)) e.preventDefault()
+}
+function onLabelEnter(e: KeyboardEvent) {
+  if (isImeEnter(e)) return
+  saveLabel()
+}
+
+async function swapTables() {
+  const a = selectedTable.value
+  const b = swapTarget.value
+  if (a === null || b === null) return
+  if (!window.confirm(`確定將「${tableName(a)}」與「${tableName(b)}」整桌互換？`)) return
+  swapError.value = ''
+  swapLoading.value = true
+  try {
+    const res = await adminApi.post('/api/admin/seating/tables/swap', { a, b })
+    applySeating(res.data.data)
+    swapTarget.value = null
+  } catch (err: any) {
+    swapError.value = apiError(err, '互換失敗')
+  } finally {
+    swapLoading.value = false
   }
 }
 

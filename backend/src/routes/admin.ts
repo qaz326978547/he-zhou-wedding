@@ -13,6 +13,7 @@ import {
 import {
   listSeating,
   updateSeatTable,
+  swapSeatTables,
   createSeatGuest,
   updateSeatGuest,
   deleteSeatGuest,
@@ -31,6 +32,7 @@ router.put('/red-envelope/:id', adminAuth, updateRedEnvelope)
 router.delete('/red-envelope/:id', adminAuth, deleteRedEnvelope)
 
 router.get('/seating', adminAuth, listSeating)
+router.post('/seating/tables/swap', adminAuth, swapSeatTables)
 router.put('/seating/tables/:tableNo', adminAuth, updateSeatTable)
 router.post('/seating/guests', adminAuth, createSeatGuest)
 router.put('/seating/guests/:id', adminAuth, updateSeatGuest)
