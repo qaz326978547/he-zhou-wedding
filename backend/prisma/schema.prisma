@@ -37,8 +37,9 @@ model RedEnvelopeEntry {
 }
 
 model SeatTable {
-  tableNo Int     @id
-  label   String?
+  tableNo  Int     @id
+  label    String?
+  capacity Int     @default(10)
 }
 
 model SeatGuest {

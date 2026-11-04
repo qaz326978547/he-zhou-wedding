@@ -6,7 +6,8 @@ import {
   MAIN_TABLE_NO,
   MAX_TABLE_NO,
   seatGuestSchema,
-  seatTableLabelSchema,
+  seatTableSchema,
+  MAX_TABLE_CAPACITY,
 } from '../validation/seatingSchema'
 
 const prisma = new PrismaClient()
@@ -24,13 +25,17 @@ async function assertCapacity(
   count: number,
   excludeId?: number,
 ) {
-  const agg = await tx.seatGuest.aggregate({
-    _sum: { count: true },
-    where: { tableNo, ...(excludeId ? { id: { not: excludeId } } : {}) },
-  })
+  const [table, agg] = await Promise.all([
+    tx.seatTable.findUnique({ where: { tableNo } }),
+    tx.seatGuest.aggregate({
+      _sum: { count: true },
+      where: { tableNo, ...(excludeId ? { id: { not: excludeId } } : {}) },
+    }),
+  ])
+  const capacity = table?.capacity ?? TABLE_CAPACITY
   const used = agg._sum.count ?? 0
-  if (used + count > TABLE_CAPACITY) {
-    throw new TableFullError(tableNo, Math.max(TABLE_CAPACITY - used, 0))
+  if (used + count > capacity) {
+    throw new TableFullError(tableNo, Math.max(capacity - used, 0))
   }
 }
 
@@ -56,7 +61,13 @@ async function listSeatingImpl(_req: Request, res: Response) {
     prisma.seatGuest.findMany({ orderBy: [{ tableNo: 'asc' }, { id: 'asc' }] }),
   ])
   return res.json({
-    data: { capacity: TABLE_CAPACITY, tableCount: TABLE_COUNT, tables, guests },
+    data: {
+      capacity: TABLE_CAPACITY,
+      maxCapacity: MAX_TABLE_CAPACITY,
+      tableCount: TABLE_COUNT,
+      tables,
+      guests,
+    },
   })
 }
 
@@ -65,13 +76,29 @@ async function updateSeatTableImpl(req: Request, res: Response) {
   if (isNaN(tableNo) || tableNo < MAIN_TABLE_NO || tableNo > MAX_TABLE_NO) {
     return res.status(400).json({ error: 'INVALID_ID' })
   }
-  const result = seatTableLabelSchema.safeParse(req.body)
+  const result = seatTableSchema.safeParse(req.body)
   if (!result.success) return validationError(res, result.error)
+  const { label, capacity } = result.data
+
+  const data: { label?: string | null; capacity?: number } = {}
+  if (label !== undefined) data.label = label || null
+  if (capacity !== undefined) {
+    // 座位數不可少於目前已安排人數
+    const agg = await prisma.seatGuest.aggregate({ _sum: { count: true }, where: { tableNo } })
+    const used = agg._sum.count ?? 0
+    if (capacity < used) {
+      return res.status(409).json({
+        error: 'CAPACITY_BELOW_SEATED',
+        message: `此桌已安排 ${used} 位，座位數不可少於 ${used}`,
+      })
+    }
+    data.capacity = capacity
+  }
 
   const record = await prisma.seatTable.upsert({
     where: { tableNo },
-    create: { tableNo, label: result.data.label },
-    update: { label: result.data.label },
+    create: { tableNo, ...data },
+    update: data,
   })
   return res.json({ data: record })
 }

@@ -3,7 +3,10 @@
 // 編號：主桌（舞台正前方）不編號，內部以 0 表示；
 // 其餘由最左側一欄開始，每欄由上往下編號，再往右一欄。
 
+/** 每桌預設座位數 */
 export const TABLE_CAPACITY = 10
+/** 單桌加座後的上限 */
+export const MAX_TABLE_CAPACITY = 12
 export const TABLE_RADIUS = 45
 export const MAIN_TABLE_NO = 0
 

@@ -78,7 +78,7 @@
               :key="t.no"
               class="cursor-pointer"
               role="button"
-              :aria-label="`${tableName(t.no)}，${seatedAt(t.no)} / ${TABLE_CAPACITY} 人`"
+              :aria-label="`${tableName(t.no)}，${seatedAt(t.no)} / ${capacityOf(t.no)} 人`"
               tabindex="0"
               @click="selectTable(t.no)"
               @keydown.enter="selectTable(t.no)"
@@ -92,8 +92,8 @@
                 :stroke-width="selectedTable === t.no || searchMatchTables.has(t.no) ? 7 : 2.5"
               />
               <text :x="t.x" :y="t.y - 4" text-anchor="middle" font-size="30" font-weight="700" fill="#1F2937">{{ t.no === MAIN_TABLE_NO ? '主桌' : t.no }}</text>
-              <text :x="t.x" :y="t.y + 28" text-anchor="middle" font-size="20" :fill="seatedAt(t.no) > TABLE_CAPACITY ? '#DC2626' : '#4B5563'">
-                {{ seatedAt(t.no) }}/{{ TABLE_CAPACITY }}
+              <text :x="t.x" :y="t.y + 28" text-anchor="middle" font-size="20" :fill="capacityOf(t.no) > TABLE_CAPACITY ? '#B45309' : '#4B5563'" :font-weight="capacityOf(t.no) > TABLE_CAPACITY ? 700 : 400">
+                {{ seatedAt(t.no) }}/{{ capacityOf(t.no) }}
               </text>
               <text v-if="labelOf(t.no)" :x="t.x" :y="t.y + TABLE_RADIUS + 26" text-anchor="middle" font-size="22" fill="#374151">
                 {{ labelOf(t.no) }}
@@ -126,9 +126,29 @@
               </div>
               <div class="text-right shrink-0">
                 <div class="text-2xl font-bold" :class="remaining(selectedTable) === 0 ? 'text-emerald-600' : 'text-gray-800'">
-                  {{ seatedAt(selectedTable) }}<span class="text-sm text-gray-400">/{{ TABLE_CAPACITY }}</span>
+                  {{ seatedAt(selectedTable) }}<span class="text-sm text-gray-400">/{{ capacityOf(selectedTable) }}</span>
                 </div>
                 <div class="text-xs text-gray-400">剩 {{ remaining(selectedTable) }} 位</div>
+                <div class="flex items-center gap-1 justify-end mt-1">
+                  <span class="text-xs text-gray-500">座位數</span>
+                  <button
+                    @click="changeCapacity(-1)"
+                    :disabled="capacitySaving || capacityOf(selectedTable) <= Math.max(seatedAt(selectedTable), 1)"
+                    class="cap-btn"
+                    aria-label="減少座位"
+                  >−</button>
+                  <span class="text-sm w-5 text-center font-medium">{{ capacityOf(selectedTable) }}</span>
+                  <button
+                    @click="changeCapacity(1)"
+                    :disabled="capacitySaving || capacityOf(selectedTable) >= MAX_TABLE_CAPACITY"
+                    class="cap-btn"
+                    aria-label="加座"
+                  >＋</button>
+                </div>
+                <div v-if="capacityOf(selectedTable) > TABLE_CAPACITY" class="text-[11px] text-amber-700 mt-0.5">
+                  已加座 {{ capacityOf(selectedTable) - TABLE_CAPACITY }} 位
+                </div>
+                <p v-if="capacityError" class="text-red-500 text-xs mt-1 max-w-[160px]">{{ capacityError }}</p>
               </div>
             </div>
 
@@ -139,7 +159,7 @@
                 <template v-if="editingId === g.id">
                   <div class="grid grid-cols-6 gap-2">
                     <div class="col-span-4"><label class="field-label">姓名</label><input v-model="editForm.name" class="edit-input" /></div>
-                    <div class="col-span-2"><label class="field-label">人數</label><input v-model.number="editForm.count" type="number" min="1" :max="TABLE_CAPACITY" class="edit-input" /></div>
+                    <div class="col-span-2"><label class="field-label">人數</label><input v-model.number="editForm.count" type="number" min="1" :max="MAX_TABLE_CAPACITY" class="edit-input" /></div>
                     <div class="col-span-6"><label class="field-label">備註</label><input v-model="editForm.note" maxlength="100" placeholder="例如：素食、需兒童椅" class="edit-input" /></div>
                     <div class="col-span-6">
                       <label class="field-label">桌次（換桌）</label>
@@ -181,12 +201,12 @@
               <div class="text-sm font-medium text-gray-700">新增賓客到此桌</div>
               <div class="grid grid-cols-6 gap-2">
                 <input v-model="addForm.name" placeholder="姓名" maxlength="50" class="edit-input col-span-4" />
-                <input v-model.number="addForm.count" type="number" min="1" :max="TABLE_CAPACITY" placeholder="人數" class="edit-input col-span-2" />
+                <input v-model.number="addForm.count" type="number" min="1" :max="MAX_TABLE_CAPACITY" placeholder="人數" class="edit-input col-span-2" />
                 <input v-model="addForm.note" placeholder="備註（選填）" maxlength="100" class="edit-input col-span-6" />
               </div>
               <p v-if="addError" class="text-red-500 text-xs">{{ addError }}</p>
               <button type="submit" :disabled="addLoading || remaining(selectedTable) === 0" class="w-full bg-gray-800 text-white rounded-lg py-2 text-sm min-h-[40px] disabled:opacity-50">
-                {{ remaining(selectedTable) === 0 ? '此桌已滿' : addLoading ? '新增中...' : '加入此桌' }}
+                {{ remaining(selectedTable) === 0 ? '此桌已滿（可按右上「＋」加座）' : addLoading ? '新增中...' : '加入此桌' }}
               </button>
             </form>
           </div>
@@ -241,6 +261,7 @@ import adminApi from '../../services/adminApi'
 import {
   TABLE_LAYOUT,
   TABLE_CAPACITY,
+  MAX_TABLE_CAPACITY,
   TABLE_COUNT,
   TABLE_RADIUS,
   PILLARS,
@@ -261,6 +282,9 @@ interface SeatGuest {
 const router = useRouter()
 const guests = ref<SeatGuest[]>([])
 const labels = ref<Record<number, string | null>>({})
+const capacities = ref<Record<number, number>>({})
+const capacitySaving = ref(false)
+const capacityError = ref('')
 const rsvpList = ref<any[]>([])
 const loadError = ref(false)
 
@@ -285,7 +309,7 @@ const addError = ref('')
 const addingRsvpId = ref<number | null>(null)
 const rsvpError = ref('')
 
-const totalCapacity = TABLE_COUNT * TABLE_CAPACITY
+const totalCapacity = computed(() => TABLE_LAYOUT.reduce((s, t) => s + capacityOf(t.no), 0))
 
 const seatedByTable = computed(() => {
   const map: Record<number, number> = {}
@@ -294,7 +318,7 @@ const seatedByTable = computed(() => {
 })
 const totalSeated = computed(() => guests.value.reduce((s, g) => s + g.count, 0))
 const usedTableCount = computed(() => Object.values(seatedByTable.value).filter((n) => n > 0).length)
-const fullTableCount = computed(() => Object.values(seatedByTable.value).filter((n) => n >= TABLE_CAPACITY).length)
+const fullTableCount = computed(() => TABLE_LAYOUT.filter((t) => seatedAt(t.no) >= capacityOf(t.no)).length)
 
 const seatedRsvpIds = computed(() => new Set(guests.value.map((g) => g.rsvpId).filter((id): id is number => !!id)))
 const allUnassignedRsvp = computed(() => rsvpList.value.filter((r) => r.attending && !seatedRsvpIds.value.has(r.id)))
@@ -319,8 +343,11 @@ function isSearchHit(g: SeatGuest) {
 function seatedAt(no: number) {
   return seatedByTable.value[no] ?? 0
 }
+function capacityOf(no: number) {
+  return capacities.value[no] ?? TABLE_CAPACITY
+}
 function remaining(no: number) {
-  return Math.max(TABLE_CAPACITY - seatedAt(no), 0)
+  return Math.max(capacityOf(no) - seatedAt(no), 0)
 }
 function labelOf(no: number) {
   return labels.value[no] || ''
@@ -333,7 +360,7 @@ function guestsAt(no: number) {
 }
 function tableFill(no: number) {
   const n = seatedAt(no)
-  if (n >= TABLE_CAPACITY) return '#A7F3D0'
+  if (n >= capacityOf(no)) return '#A7F3D0'
   if (n > 0) return '#FEF3C7'
   return '#FFFFFF'
 }
@@ -358,6 +385,7 @@ async function loadAll() {
     ])
     guests.value = seatRes.data.data.guests
     labels.value = Object.fromEntries(seatRes.data.data.tables.map((t: any) => [t.tableNo, t.label]))
+    capacities.value = Object.fromEntries(seatRes.data.data.tables.map((t: any) => [t.tableNo, t.capacity]))
     rsvpList.value = rsvpRes.data.data
   } catch {
     loadError.value = true
@@ -369,6 +397,7 @@ async function selectTable(no: number) {
   editingId.value = null
   editingLabel.value = false
   addError.value = ''
+  capacityError.value = ''
   rsvpError.value = ''
   if (window.innerWidth < 768) {
     await nextTick()
@@ -394,6 +423,21 @@ async function saveLabel() {
     window.alert(apiError(err, '桌名儲存失敗'))
   } finally {
     labelSaving.value = false
+  }
+}
+
+async function changeCapacity(delta: number) {
+  const no = selectedTable.value
+  if (no === null) return
+  capacityError.value = ''
+  capacitySaving.value = true
+  try {
+    const res = await adminApi.put(`/api/admin/seating/tables/${no}`, { capacity: capacityOf(no) + delta })
+    capacities.value = { ...capacities.value, [no]: res.data.data.capacity }
+  } catch (err: any) {
+    capacityError.value = apiError(err, '座位數更新失敗')
+  } finally {
+    capacitySaving.value = false
   }
 }
 
@@ -436,7 +480,7 @@ async function addFromRsvp(r: any) {
     const res = await adminApi.post('/api/admin/seating/guests', {
       tableNo: no,
       name: r.name,
-      count: Math.min(rsvpCount(r), TABLE_CAPACITY),
+      count: rsvpCount(r),
       note: notes.join('、') || null,
       rsvpId: r.id,
     })
@@ -504,12 +548,12 @@ function exportCsv() {
   for (const t of TABLE_LAYOUT) {
     const list = guestsAt(t.no)
     for (const g of list) rows.push([baseTableName(t.no), labelOf(t.no), g.name, g.count, g.note ?? ''])
-    rows.push([baseTableName(t.no), labelOf(t.no), '【小計】', seatedAt(t.no), `剩 ${remaining(t.no)} 位`])
+    rows.push([baseTableName(t.no), labelOf(t.no), '【小計】', seatedAt(t.no), `座位 ${capacityOf(t.no)}・剩 ${remaining(t.no)} 位`])
     rows.push([])
   }
   rows.push(['【統計摘要】'])
   rows.push(['已安排人數', totalSeated.value])
-  rows.push(['總座位', totalCapacity])
+  rows.push(['總座位', totalCapacity.value])
   rows.push(['RSVP 未安排人數', unassignedPeople.value])
 
   const csv = rows.map((r) => r.map(csvEscape).join(',')).join('\r\n')
@@ -545,6 +589,9 @@ function exportCsv() {
 }
 .small-btn {
   @apply text-xs rounded px-2 py-1.5 whitespace-nowrap;
+}
+.cap-btn {
+  @apply w-7 h-7 rounded border border-gray-300 text-gray-700 text-sm leading-none hover:bg-gray-50 disabled:opacity-30;
 }
 .legend {
   @apply inline-block w-3 h-3 rounded-full border border-[#B03A2E];
