@@ -1,13 +1,16 @@
 import { z } from 'zod'
 
 export const TABLE_COUNT = 17
+/** 主桌內部桌號為 0，其餘為 1–16 */
+export const MAIN_TABLE_NO = 0
+export const MAX_TABLE_NO = TABLE_COUNT - 1
 export const TABLE_CAPACITY = 10
 
 const tableNo = z
   .number()
   .int('桌號格式錯誤')
-  .min(1, '桌號格式錯誤')
-  .max(TABLE_COUNT, '桌號格式錯誤')
+  .min(MAIN_TABLE_NO, '桌號格式錯誤')
+  .max(MAX_TABLE_NO, '桌號格式錯誤')
 
 export const seatGuestSchema = z.object({
   tableNo,

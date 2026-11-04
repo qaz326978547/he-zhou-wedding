@@ -3,6 +3,8 @@ import { Prisma, PrismaClient } from '@prisma/client'
 import {
   TABLE_CAPACITY,
   TABLE_COUNT,
+  MAIN_TABLE_NO,
+  MAX_TABLE_NO,
   seatGuestSchema,
   seatTableLabelSchema,
 } from '../validation/seatingSchema'
@@ -11,7 +13,7 @@ const prisma = new PrismaClient()
 
 class TableFullError extends Error {
   constructor(public tableNo: number, public remaining: number) {
-    super(`第 ${tableNo} 桌座位不足，剩餘 ${remaining} 位`)
+    super(`${tableNo === MAIN_TABLE_NO ? '主桌' : `第 ${tableNo} 桌`}座位不足，剩餘 ${remaining} 位`)
   }
 }
 
@@ -60,7 +62,7 @@ async function listSeatingImpl(_req: Request, res: Response) {
 
 async function updateSeatTableImpl(req: Request, res: Response) {
   const tableNo = parseInt(req.params.tableNo, 10)
-  if (isNaN(tableNo) || tableNo < 1 || tableNo > TABLE_COUNT) {
+  if (isNaN(tableNo) || tableNo < MAIN_TABLE_NO || tableNo > MAX_TABLE_NO) {
     return res.status(400).json({ error: 'INVALID_ID' })
   }
   const result = seatTableLabelSchema.safeParse(req.body)

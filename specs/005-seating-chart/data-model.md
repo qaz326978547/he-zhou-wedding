@@ -4,7 +4,7 @@
 
 | 欄位 | 型別 | 說明 |
 |---|---|---|
-| `tableNo` | `Int` PK | 桌號 1–17 |
+| `tableNo` | `Int` PK | 桌號：0 = 主桌，1–16 = 一般桌 |
 | `label` | `String?` | 自訂桌名，空值時前端顯示「第 N 桌」 |
 
 僅於修改桌名時 upsert，未設定的桌不需存在資料列。
@@ -14,7 +14,7 @@
 | 欄位 | 型別 | 說明 |
 |---|---|---|
 | `id` | `Int` PK autoincrement | |
-| `tableNo` | `Int` | 桌號 1–17（index） |
+| `tableNo` | `Int` | 桌號 0–16（index，0 = 主桌） |
 | `name` | `String` | 姓名（1–50 字） |
 | `count` | `Int` default 1 | 人數 1–10 |
 | `note` | `String?` | 備註（≤ 100 字，例如「素食」「需兒童椅」） |

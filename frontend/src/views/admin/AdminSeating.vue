@@ -91,7 +91,7 @@
                 :stroke="selectedTable === t.no ? '#1F2937' : searchMatchTables.has(t.no) ? '#2563EB' : '#B03A2E'"
                 :stroke-width="selectedTable === t.no || searchMatchTables.has(t.no) ? 7 : 2.5"
               />
-              <text :x="t.x" :y="t.y - 4" text-anchor="middle" font-size="30" font-weight="700" fill="#1F2937">{{ t.no }}</text>
+              <text :x="t.x" :y="t.y - 4" text-anchor="middle" font-size="30" font-weight="700" fill="#1F2937">{{ t.no === MAIN_TABLE_NO ? '主桌' : t.no }}</text>
               <text :x="t.x" :y="t.y + 28" text-anchor="middle" font-size="20" :fill="seatedAt(t.no) > TABLE_CAPACITY ? '#DC2626' : '#4B5563'">
                 {{ seatedAt(t.no) }}/{{ TABLE_CAPACITY }}
               </text>
@@ -110,10 +110,10 @@
         <!-- Side panel -->
         <div ref="panelRef" class="md:col-span-2 space-y-4 scroll-mt-20">
           <!-- Selected table -->
-          <div v-if="selectedTable" class="bg-white rounded-xl shadow-sm p-4 space-y-4">
+          <div v-if="selectedTable !== null" class="bg-white rounded-xl shadow-sm p-4 space-y-4">
             <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <div class="text-xs text-gray-400">第 {{ selectedTable }} 桌</div>
+                <div class="text-xs text-gray-400">{{ baseTableName(selectedTable) }}</div>
                 <div v-if="!editingLabel" class="flex items-center gap-2">
                   <h2 class="text-lg font-semibold text-gray-800 truncate">{{ tableName(selectedTable) }}</h2>
                   <button @click="startEditLabel" class="text-xs text-gray-400 hover:text-gray-600 underline whitespace-nowrap">改桌名</button>
@@ -218,11 +218,11 @@
                 </div>
                 <button
                   @click="addFromRsvp(r)"
-                  :disabled="!selectedTable || rsvpCount(r) > remaining(selectedTable) || addingRsvpId === r.id"
+                  :disabled="selectedTable === null || rsvpCount(r) > remaining(selectedTable) || addingRsvpId === r.id"
                   class="small-btn border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 shrink-0"
-                  :title="!selectedTable ? '請先選擇桌子' : rsvpCount(r) > remaining(selectedTable) ? '此桌座位不足' : ''"
+                  :title="selectedTable === null ? '請先選擇桌子' : rsvpCount(r) > remaining(selectedTable) ? '此桌座位不足' : ''"
                 >
-                  {{ selectedTable ? `加入第 ${selectedTable} 桌` : '先選桌' }}
+                  {{ selectedTable !== null ? `加入${baseTableName(selectedTable)}` : '先選桌' }}
                 </button>
               </li>
             </ul>
@@ -245,6 +245,8 @@ import {
   TABLE_RADIUS,
   PILLARS,
   FLOOR_VIEWBOX,
+  MAIN_TABLE_NO,
+  baseTableName,
 } from '../../constants/seating'
 
 interface SeatGuest {
@@ -324,7 +326,7 @@ function labelOf(no: number) {
   return labels.value[no] || ''
 }
 function tableName(no: number) {
-  return labelOf(no) ? `第 ${no} 桌・${labelOf(no)}` : `第 ${no} 桌`
+  return labelOf(no) ? `${baseTableName(no)}・${labelOf(no)}` : baseTableName(no)
 }
 function guestsAt(no: number) {
   return guests.value.filter((g) => g.tableNo === no)
@@ -375,13 +377,14 @@ async function selectTable(no: number) {
 }
 
 function startEditLabel() {
-  labelDraft.value = labelOf(selectedTable.value!)
+  if (selectedTable.value === null) return
+  labelDraft.value = labelOf(selectedTable.value)
   editingLabel.value = true
 }
 
 async function saveLabel() {
   const no = selectedTable.value
-  if (!no) return
+  if (no === null) return
   labelSaving.value = true
   try {
     const res = await adminApi.put(`/api/admin/seating/tables/${no}`, { label: labelDraft.value })
@@ -396,7 +399,7 @@ async function saveLabel() {
 
 async function addGuest() {
   const no = selectedTable.value
-  if (!no) return
+  if (no === null) return
   addError.value = ''
   const name = addForm.value.name.trim()
   const count = Number(addForm.value.count)
@@ -423,7 +426,7 @@ async function addGuest() {
 
 async function addFromRsvp(r: any) {
   const no = selectedTable.value
-  if (!no) return
+  if (no === null) return
   rsvpError.value = ''
   addingRsvpId.value = r.id
   try {
@@ -500,8 +503,8 @@ function exportCsv() {
   const rows: any[][] = [['桌號', '桌名', '姓名', '人數', '備註']]
   for (const t of TABLE_LAYOUT) {
     const list = guestsAt(t.no)
-    for (const g of list) rows.push([t.no, labelOf(t.no), g.name, g.count, g.note ?? ''])
-    rows.push([t.no, labelOf(t.no), '【小計】', seatedAt(t.no), `剩 ${remaining(t.no)} 位`])
+    for (const g of list) rows.push([baseTableName(t.no), labelOf(t.no), g.name, g.count, g.note ?? ''])
+    rows.push([baseTableName(t.no), labelOf(t.no), '【小計】', seatedAt(t.no), `剩 ${remaining(t.no)} 位`])
     rows.push([])
   }
   rows.push(['【統計摘要】'])
