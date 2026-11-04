@@ -35,3 +35,20 @@ model RedEnvelopeEntry {
   amount    Int
   createdAt DateTime @default(now())
 }
+
+model SeatTable {
+  tableNo Int     @id
+  label   String?
+}
+
+model SeatGuest {
+  id        Int      @id @default(autoincrement())
+  tableNo   Int
+  name      String
+  count     Int      @default(1)
+  note      String?
+  rsvpId    Int?
+  createdAt DateTime @default(now())
+
+  @@index([tableNo])
+}

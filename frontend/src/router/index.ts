@@ -18,6 +18,10 @@ const router = createRouter({
       component: () => import('../views/admin/AdminRedEnvelope.vue'),
     },
     {
+      path: '/admin/seating',
+      component: () => import('../views/admin/AdminSeating.vue'),
+    },
+    {
       path: '/admin/login',
       component: () => import('../views/admin/AdminLogin.vue'),
     },

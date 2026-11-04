@@ -12,6 +12,12 @@
         >
           紅包登記
         </RouterLink>
+        <RouterLink
+          to="/admin/seating"
+          class="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5"
+        >
+          座位安排
+        </RouterLink>
         <button
           @click="handleLogout"
           class="text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5"
