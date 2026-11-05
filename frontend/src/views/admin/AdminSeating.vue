@@ -49,6 +49,28 @@
         <template v-else>找不到符合的姓名</template>
       </p>
 
+      <!-- Side filter & stats -->
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden text-sm bg-white">
+          <button
+            v-for="o in SIDE_VIEWS"
+            :key="o.value"
+            @click="sideView = o.value"
+            class="px-3 py-1.5 transition"
+            :class="sideView === o.value ? 'bg-gray-800 text-white' : 'text-gray-600 hover:bg-gray-50'"
+          >{{ o.label }}</button>
+        </div>
+        <span class="side-pill bg-blue-50 text-blue-700 border-blue-200">新郎方 {{ sideStats.groom.tables }} 桌・{{ sideStats.groom.people }} 人</span>
+        <span class="side-pill bg-rose-50 text-rose-700 border-rose-200">新娘方 {{ sideStats.bride.tables }} 桌・{{ sideStats.bride.people }} 人</span>
+        <span v-if="sideStats.none.tables" class="side-pill bg-gray-50 text-gray-600 border-gray-200">未設定 {{ sideStats.none.tables }} 桌・{{ sideStats.none.people }} 人</span>
+        <button
+          v-if="autoSideCandidates.length"
+          @click="autoAssignSides"
+          :disabled="autoSideLoading"
+          class="ml-auto text-sm border border-gray-300 text-gray-700 rounded-lg px-3 py-1.5 hover:bg-gray-100 disabled:opacity-50"
+        >{{ autoSideLoading ? '標示中...' : `依賓客自動標示（${autoSideCandidates.length} 桌）` }}</button>
+      </div>
+
       <div class="grid md:grid-cols-5 gap-5 items-start">
         <!-- Floor plan -->
         <div class="md:col-span-3 bg-white rounded-xl shadow-sm p-3 md:sticky md:top-20">
@@ -82,15 +104,32 @@
               tabindex="0"
               @click="selectTable(t.no)"
               @keydown.enter="selectTable(t.no)"
+              :opacity="isDimmed(t.no) ? 0.22 : 1"
             >
+              <!-- selected / search ring -->
+              <circle
+                v-if="selectedTable === t.no || searchMatchTables.has(t.no)"
+                :cx="t.x"
+                :cy="t.y"
+                :r="TABLE_RADIUS + 13"
+                fill="none"
+                :stroke="selectedTable === t.no ? '#1F2937' : '#F59E0B'"
+                stroke-width="5"
+                :stroke-dasharray="selectedTable === t.no ? undefined : '10 7'"
+              />
               <circle
                 :cx="t.x"
                 :cy="t.y"
                 :r="TABLE_RADIUS"
                 :fill="tableFill(t.no)"
-                :stroke="selectedTable === t.no ? '#1F2937' : searchMatchTables.has(t.no) ? '#2563EB' : '#B03A2E'"
-                :stroke-width="selectedTable === t.no || searchMatchTables.has(t.no) ? 7 : 2.5"
+                :stroke="SIDE_META[sideKey(t.no)].color"
+                :stroke-width="sideOf(t.no) ? 7 : 2.5"
               />
+              <!-- side badge -->
+              <g v-if="sideOf(t.no)">
+                <circle :cx="t.x + 34" :cy="t.y - 34" r="17" :fill="SIDE_META[sideKey(t.no)].color" />
+                <text :x="t.x + 34" :y="t.y - 27" text-anchor="middle" font-size="19" font-weight="700" fill="#FFFFFF">{{ SIDE_META[sideKey(t.no)].short }}</text>
+              </g>
               <text :x="t.x" :y="t.y - 4" text-anchor="middle" font-size="30" font-weight="700" fill="#1F2937">{{ t.no === MAIN_TABLE_NO ? '主桌' : t.no }}</text>
               <text :x="t.x" :y="t.y + 28" text-anchor="middle" font-size="20" :fill="capacityOf(t.no) > TABLE_CAPACITY ? '#B45309' : '#4B5563'" :font-weight="capacityOf(t.no) > TABLE_CAPACITY ? 700 : 400">
                 {{ seatedAt(t.no) }}/{{ capacityOf(t.no) }}
@@ -104,6 +143,8 @@
             <span class="flex items-center gap-1"><span class="legend bg-white"></span>空桌</span>
             <span class="flex items-center gap-1"><span class="legend bg-amber-100"></span>未滿</span>
             <span class="flex items-center gap-1"><span class="legend bg-emerald-200"></span>已滿</span>
+            <span class="flex items-center gap-1"><span class="legend-ring" style="border-color:#2563EB"></span>新郎方</span>
+            <span class="flex items-center gap-1"><span class="legend-ring" style="border-color:#E11D74"></span>新娘方</span>
           </div>
         </div>
 
@@ -151,6 +192,29 @@
                 <p v-if="capacityError" class="text-red-500 text-xs mt-1 max-w-[160px]">{{ capacityError }}</p>
               </div>
             </div>
+
+            <!-- Side -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs text-gray-500">方別</span>
+              <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden text-xs">
+                <button
+                  v-for="o in SIDE_OPTIONS"
+                  :key="String(o.value)"
+                  @click="setSide(o.value)"
+                  :disabled="sideSaving"
+                  class="px-3 py-1.5 transition disabled:opacity-50"
+                  :class="sideOf(selectedTable) === o.value ? o.active : 'bg-white text-gray-600 hover:bg-gray-50'"
+                >{{ o.label }}</button>
+              </div>
+              <button
+                v-if="suggestedSide(selectedTable) && suggestedSide(selectedTable) !== sideOf(selectedTable)"
+                @click="setSide(suggestedSide(selectedTable))"
+                :disabled="sideSaving"
+                class="text-xs text-blue-600 underline"
+              >套用建議：{{ SIDE_META[suggestedSide(selectedTable)!].label }}</button>
+            </div>
+            <p v-if="compositionText(selectedTable)" class="text-xs text-gray-400 -mt-2">賓客組成：{{ compositionText(selectedTable) }}</p>
+            <p v-if="sideError" class="text-red-500 text-xs -mt-2">{{ sideError }}</p>
 
             <!-- Guests at table -->
             <p v-if="guestsAt(selectedTable).length === 0" class="text-sm text-gray-400 text-center py-3">此桌尚未安排賓客</p>
@@ -228,7 +292,7 @@
                   {{ swapLoading ? '互換中...' : '互換' }}
                 </button>
               </div>
-              <p class="text-xs text-gray-400">兩桌的賓客、桌名、座位數會一起交換</p>
+              <p class="text-xs text-gray-400">兩桌的賓客、桌名、座位數、方別會一起交換</p>
               <p v-if="swapError" class="text-red-500 text-xs">{{ swapError }}</p>
             </div>
           </div>
@@ -306,6 +370,12 @@ const guests = ref<SeatGuest[]>([])
 const labels = ref<Record<number, string | null>>({})
 const capacities = ref<Record<number, number>>({})
 const capacitySaving = ref(false)
+type Side = 'groom' | 'bride'
+const sides = ref<Record<number, Side | null>>({})
+const sideView = ref<'all' | Side>('all')
+const sideSaving = ref(false)
+const sideError = ref('')
+const autoSideLoading = ref(false)
 const capacityError = ref('')
 const swapTarget = ref<number | null>(null)
 const swapLoading = ref(false)
@@ -368,6 +438,105 @@ function isSearchHit(g: SeatGuest) {
 function seatedAt(no: number) {
   return seatedByTable.value[no] ?? 0
 }
+const SIDE_META = {
+  groom: { label: '新郎方', short: '郎', color: '#2563EB' },
+  bride: { label: '新娘方', short: '娘', color: '#E11D74' },
+  none: { label: '未設定', short: '', color: '#B03A2E' },
+} as const
+const SIDE_OPTIONS: { value: Side | null; label: string; active: string }[] = [
+  { value: 'groom', label: '新郎方', active: 'bg-blue-600 text-white' },
+  { value: 'bride', label: '新娘方', active: 'bg-rose-600 text-white' },
+  { value: null, label: '未設定', active: 'bg-gray-700 text-white' },
+]
+const SIDE_VIEWS: { value: 'all' | Side; label: string }[] = [
+  { value: 'all', label: '全部' },
+  { value: 'groom', label: '新郎方' },
+  { value: 'bride', label: '新娘方' },
+]
+
+const rsvpById = computed(() => new Map(rsvpList.value.map((r) => [r.id, r])))
+
+function sideOf(no: number): Side | null {
+  return sides.value[no] ?? null
+}
+function sideKey(no: number): Side | 'none' {
+  return sideOf(no) ?? 'none'
+}
+function isDimmed(no: number) {
+  return sideView.value !== 'all' && sideOf(no) !== sideView.value
+}
+/** 依桌上賓客的 RSVP 親友別加總人數 */
+function composition(no: number) {
+  const c = { groom: 0, bride: 0, unknown: 0 }
+  for (const g of guestsAt(no)) {
+    const side = g.rsvpId ? rsvpById.value.get(g.rsvpId)?.relationshipSide : null
+    if (side === 'groom' || side === 'bride') c[side as Side] += g.count
+    else c.unknown += g.count
+  }
+  return c
+}
+function compositionText(no: number) {
+  const c = composition(no)
+  const parts: string[] = []
+  if (c.groom) parts.push(`新郎親友 ${c.groom} 人`)
+  if (c.bride) parts.push(`新娘親友 ${c.bride} 人`)
+  if (c.unknown) parts.push(`無 RSVP 資料 ${c.unknown} 人`)
+  return parts.join('、')
+}
+/** 只有單一方的 RSVP 賓客時才給建議，雙方混坐不建議 */
+function suggestedSide(no: number): Side | null {
+  const c = composition(no)
+  if (c.groom && !c.bride) return 'groom'
+  if (c.bride && !c.groom) return 'bride'
+  return null
+}
+const sideStats = computed(() => {
+  const st = { groom: { tables: 0, people: 0 }, bride: { tables: 0, people: 0 }, none: { tables: 0, people: 0 } }
+  for (const t of TABLE_LAYOUT) {
+    const key = sideKey(t.no)
+    if (key === 'none' && seatedAt(t.no) === 0) continue
+    st[key].tables++
+    st[key].people += seatedAt(t.no)
+  }
+  return st
+})
+const autoSideCandidates = computed(() =>
+  TABLE_LAYOUT.filter((t) => !sideOf(t.no) && suggestedSide(t.no)).map((t) => t.no),
+)
+
+async function putSide(no: number, side: Side | null) {
+  const res = await adminApi.put(`/api/admin/seating/tables/${no}`, { side })
+  sides.value = { ...sides.value, [no]: res.data.data.side ?? null }
+}
+
+async function setSide(side: Side | null) {
+  const no = selectedTable.value
+  if (no === null) return
+  sideError.value = ''
+  sideSaving.value = true
+  try {
+    await putSide(no, side)
+  } catch (err: any) {
+    sideError.value = apiError(err, '方別更新失敗')
+  } finally {
+    sideSaving.value = false
+  }
+}
+
+async function autoAssignSides() {
+  const list = autoSideCandidates.value
+  const desc = list.map((no) => `${baseTableName(no)} → ${SIDE_META[suggestedSide(no)!].label}`).join('\n')
+  if (!window.confirm(`依桌上賓客的 RSVP 親友別，自動標示以下未設定的桌：\n\n${desc}\n\n雙方混坐或沒有 RSVP 資料的桌不會變動。`)) return
+  autoSideLoading.value = true
+  try {
+    for (const no of list) await putSide(no, suggestedSide(no))
+  } catch (err: any) {
+    window.alert(apiError(err, '自動標示失敗，已完成的部分會保留'))
+  } finally {
+    autoSideLoading.value = false
+  }
+}
+
 function capacityOf(no: number) {
   return capacities.value[no] ?? TABLE_CAPACITY
 }
@@ -405,6 +574,7 @@ function applySeating(data: any) {
   guests.value = data.guests
   labels.value = Object.fromEntries(data.tables.map((t: any) => [t.tableNo, t.label]))
   capacities.value = Object.fromEntries(data.tables.map((t: any) => [t.tableNo, t.capacity]))
+  sides.value = Object.fromEntries(data.tables.map((t: any) => [t.tableNo, t.side ?? null]))
 }
 
 async function loadAll() {
@@ -427,6 +597,7 @@ async function selectTable(no: number) {
   editingLabel.value = false
   addError.value = ''
   capacityError.value = ''
+  sideError.value = ''
   swapTarget.value = null
   swapError.value = ''
   rsvpError.value = ''
@@ -605,15 +776,18 @@ function csvEscape(val: any): string {
 }
 
 function exportCsv() {
-  const rows: any[][] = [['桌號', '桌名', '姓名', '人數', '備註']]
+  const rows: any[][] = [['桌號', '桌名', '方別', '姓名', '人數', '備註']]
   for (const t of TABLE_LAYOUT) {
     const list = guestsAt(t.no)
-    for (const g of list) rows.push([baseTableName(t.no), labelOf(t.no), g.name, g.count, g.note ?? ''])
-    rows.push([baseTableName(t.no), labelOf(t.no), '【小計】', seatedAt(t.no), `座位 ${capacityOf(t.no)}・剩 ${remaining(t.no)} 位`])
+    const sideLabel = sideOf(t.no) ? SIDE_META[sideKey(t.no)].label : ''
+    for (const g of list) rows.push([baseTableName(t.no), labelOf(t.no), sideLabel, g.name, g.count, g.note ?? ''])
+    rows.push([baseTableName(t.no), labelOf(t.no), sideLabel, '【小計】', seatedAt(t.no), `座位 ${capacityOf(t.no)}・剩 ${remaining(t.no)} 位`])
     rows.push([])
   }
   rows.push(['【統計摘要】'])
   rows.push(['已安排人數', totalSeated.value])
+  rows.push(['新郎方', `${sideStats.value.groom.tables} 桌・${sideStats.value.groom.people} 人`])
+  rows.push(['新娘方', `${sideStats.value.bride.tables} 桌・${sideStats.value.bride.people} 人`])
   rows.push(['總座位', totalCapacity.value])
   rows.push(['RSVP 未安排人數', unassignedPeople.value])
 
@@ -653,6 +827,12 @@ function exportCsv() {
 }
 .cap-btn {
   @apply w-7 h-7 rounded border border-gray-300 text-gray-700 text-sm leading-none hover:bg-gray-50 disabled:opacity-30;
+}
+.side-pill {
+  @apply text-xs border rounded-full px-2.5 py-1 whitespace-nowrap;
+}
+.legend-ring {
+  @apply inline-block w-3 h-3 rounded-full border-[3px] bg-white;
 }
 .legend {
   @apply inline-block w-3 h-3 rounded-full border border-[#B03A2E];

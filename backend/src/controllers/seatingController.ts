@@ -79,10 +79,11 @@ async function updateSeatTableImpl(req: Request, res: Response) {
   }
   const result = seatTableSchema.safeParse(req.body)
   if (!result.success) return validationError(res, result.error)
-  const { label, capacity } = result.data
+  const { label, capacity, side } = result.data
 
-  const data: { label?: string | null; capacity?: number } = {}
+  const data: { label?: string | null; capacity?: number; side?: string | null } = {}
   if (label !== undefined) data.label = label || null
+  if (side !== undefined) data.side = side ?? null
   if (capacity !== undefined) {
     // 座位數不可少於目前已安排人數
     const agg = await prisma.seatGuest.aggregate({ _sum: { count: true }, where: { tableNo } })
@@ -104,7 +105,7 @@ async function updateSeatTableImpl(req: Request, res: Response) {
   return res.json({ data: record })
 }
 
-/** 兩桌整桌互換：賓客、桌名、座位數一起交換，因此不會發生超額 */
+/** 兩桌整桌互換：賓客、桌名、座位數、方別一起交換，因此不會發生超額 */
 async function swapSeatTablesImpl(req: Request, res: Response) {
   const result = swapTablesSchema.safeParse(req.body)
   if (!result.success) return validationError(res, result.error)
@@ -123,8 +124,16 @@ async function swapSeatTablesImpl(req: Request, res: Response) {
       data: { tableNo: b },
     })
 
-    const settingsA = { label: tableA?.label ?? null, capacity: tableA?.capacity ?? TABLE_CAPACITY }
-    const settingsB = { label: tableB?.label ?? null, capacity: tableB?.capacity ?? TABLE_CAPACITY }
+    const settingsA = {
+      label: tableA?.label ?? null,
+      capacity: tableA?.capacity ?? TABLE_CAPACITY,
+      side: tableA?.side ?? null,
+    }
+    const settingsB = {
+      label: tableB?.label ?? null,
+      capacity: tableB?.capacity ?? TABLE_CAPACITY,
+      side: tableB?.side ?? null,
+    }
     await tx.seatTable.upsert({ where: { tableNo: a }, create: { tableNo: a, ...settingsB }, update: settingsB })
     await tx.seatTable.upsert({ where: { tableNo: b }, create: { tableNo: b, ...settingsA }, update: settingsA })
   })

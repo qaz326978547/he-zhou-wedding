@@ -6,6 +6,7 @@
 |---|---|---|
 | `tableNo` | `Int` PK | 桌號：0 = 主桌，1–16 = 一般桌 |
 | `label` | `String?` | 自訂桌名，空值時前端顯示「第 N 桌」 |
+| `side` | `String?` | 方別：`groom` 新郎方、`bride` 新娘方、`null` 未設定 |
 | `capacity` | `Int` default 10 | 座位數，可加座至 12；不可少於已安排人數 |
 
 僅於修改桌名時 upsert，未設定的桌不需存在資料列。

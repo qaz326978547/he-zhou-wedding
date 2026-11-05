@@ -41,6 +41,7 @@ export const seatTableSchema = z.object({
     .min(1, '座位數至少 1 位')
     .max(MAX_TABLE_CAPACITY, `座位數最多 ${MAX_TABLE_CAPACITY} 位`)
     .optional(),
+  side: z.enum(['groom', 'bride']).nullish(),
 })
 
 export const swapTablesSchema = z

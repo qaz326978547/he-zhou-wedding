@@ -40,6 +40,8 @@ model SeatTable {
   tableNo  Int     @id
   label    String?
   capacity Int     @default(10)
+  /// 方別：groom = 新郎方、bride = 新娘方、null = 未設定
+  side     String?
 }
 
 model SeatGuest {

@@ -19,11 +19,11 @@
 
 ## PUT `/api/admin/seating/tables/:tableNo`
 
-Body：`{ "label": "新郎同事", "capacity": 11 }`（兩欄皆選填，未傳入者不更新；`label` 空字串視為清除；`capacity` 1–12，不可少於已安排人數）→ `200 { data: { tableNo, label, capacity } }`
+Body：`{ "label": "新郎同事", "capacity": 11, "side": "groom" }`（皆選填；`side` 為 `groom` / `bride` / `null`，未傳入者不更新；`label` 空字串視為清除；`capacity` 1–12，不可少於已安排人數）→ `200 { data: { tableNo, label, capacity } }`
 
 ## POST `/api/admin/seating/tables/swap`
 
-Body：`{ "a": 6, "b": 7 }`（兩桌不可相同）→ `200`，回傳與 `GET /api/admin/seating` 相同格式的最新資料。兩桌的賓客、桌名、座位數一併交換。
+Body：`{ "a": 6, "b": 7 }`（兩桌不可相同）→ `200`，回傳與 `GET /api/admin/seating` 相同格式的最新資料。兩桌的賓客、桌名、座位數、方別一併交換。
 
 ## POST `/api/admin/seating/guests`
 
