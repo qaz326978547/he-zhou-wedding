@@ -61,7 +61,7 @@
           >{{ o.label }}</button>
         </div>
         <span class="side-pill bg-blue-50 text-blue-700 border-blue-200">新郎方 {{ sideStats.groom.tables }} 桌・{{ sideStats.groom.people }} 人</span>
-        <span class="side-pill bg-rose-50 text-rose-700 border-rose-200">新娘方 {{ sideStats.bride.tables }} 桌・{{ sideStats.bride.people }} 人</span>
+        <span class="side-pill bg-red-50 text-[#B03A2E] border-red-200">新娘方 {{ sideStats.bride.tables }} 桌・{{ sideStats.bride.people }} 人</span>
         <span v-if="sideStats.none.tables" class="side-pill bg-gray-50 text-gray-600 border-gray-200">未設定 {{ sideStats.none.tables }} 桌・{{ sideStats.none.people }} 人</span>
         <button
           v-if="autoSideCandidates.length"
@@ -123,13 +123,8 @@
                 :r="TABLE_RADIUS"
                 :fill="tableFill(t.no)"
                 :stroke="SIDE_META[sideKey(t.no)].color"
-                :stroke-width="sideOf(t.no) ? 7 : 2.5"
+                :stroke-width="sideOf(t.no) ? 8 : 2.5"
               />
-              <!-- side badge -->
-              <g v-if="sideOf(t.no)">
-                <circle :cx="t.x + 34" :cy="t.y - 34" r="17" :fill="SIDE_META[sideKey(t.no)].color" />
-                <text :x="t.x + 34" :y="t.y - 27" text-anchor="middle" font-size="19" font-weight="700" fill="#FFFFFF">{{ SIDE_META[sideKey(t.no)].short }}</text>
-              </g>
               <text :x="t.x" :y="t.y - 4" text-anchor="middle" font-size="30" font-weight="700" fill="#1F2937">{{ t.no === MAIN_TABLE_NO ? '主桌' : t.no }}</text>
               <text :x="t.x" :y="t.y + 28" text-anchor="middle" font-size="20" :fill="capacityOf(t.no) > TABLE_CAPACITY ? '#B45309' : '#4B5563'" :font-weight="capacityOf(t.no) > TABLE_CAPACITY ? 700 : 400">
                 {{ seatedAt(t.no) }}/{{ capacityOf(t.no) }}
@@ -144,7 +139,8 @@
             <span class="flex items-center gap-1"><span class="legend bg-amber-100"></span>未滿</span>
             <span class="flex items-center gap-1"><span class="legend bg-emerald-200"></span>已滿</span>
             <span class="flex items-center gap-1"><span class="legend-ring" style="border-color:#2563EB"></span>新郎方</span>
-            <span class="flex items-center gap-1"><span class="legend-ring" style="border-color:#E11D74"></span>新娘方</span>
+            <span class="flex items-center gap-1"><span class="legend-ring" style="border-color:#B03A2E"></span>新娘方</span>
+            <span class="flex items-center gap-1"><span class="legend bg-white"></span>未設定（細框）</span>
           </div>
         </div>
 
@@ -439,13 +435,13 @@ function seatedAt(no: number) {
   return seatedByTable.value[no] ?? 0
 }
 const SIDE_META = {
-  groom: { label: '新郎方', short: '郎', color: '#2563EB' },
-  bride: { label: '新娘方', short: '娘', color: '#E11D74' },
-  none: { label: '未設定', short: '', color: '#B03A2E' },
+  groom: { label: '新郎方', color: '#2563EB' },
+  bride: { label: '新娘方', color: '#B03A2E' },
+  none: { label: '未設定', color: '#B03A2E' },
 } as const
 const SIDE_OPTIONS: { value: Side | null; label: string; active: string }[] = [
   { value: 'groom', label: '新郎方', active: 'bg-blue-600 text-white' },
-  { value: 'bride', label: '新娘方', active: 'bg-rose-600 text-white' },
+  { value: 'bride', label: '新娘方', active: 'bg-[#B03A2E] text-white' },
   { value: null, label: '未設定', active: 'bg-gray-700 text-white' },
 ]
 const SIDE_VIEWS: { value: 'all' | Side; label: string }[] = [
