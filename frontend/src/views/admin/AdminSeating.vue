@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 print:bg-white print:min-h-0">
     <!-- Header -->
-    <div class="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-20 gap-2">
+    <div class="bg-white border-b px-4 py-3 flex items-center justify-between sticky top-0 z-20 gap-2 print:hidden">
       <h1 class="text-lg font-semibold text-gray-800 whitespace-nowrap">座位安排</h1>
       <div class="flex items-center gap-2 flex-wrap justify-end">
         <RouterLink to="/admin" class="nav-btn">RSVP 管理</RouterLink>
@@ -10,13 +10,19 @@
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-6 space-y-5">
-      <div v-if="loadError" class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-5 print:p-0 print:max-w-none">
+      <!-- Print title -->
+      <div class="hidden print:block print-title">
+        <h1>婚宴座位表・草悟廳</h1>
+        <p>已安排 {{ totalSeated }} 人／總座位 {{ totalCapacity }}・新郎方 {{ sideStats.groom.tables }} 桌 {{ sideStats.groom.people }} 人・新娘方 {{ sideStats.bride.tables }} 桌 {{ sideStats.bride.people }} 人・列印日期 {{ printDate }}</p>
+      </div>
+
+      <div v-if="loadError" class="print:hidden bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600">
         資料載入失敗，請重新整理頁面
       </div>
 
       <!-- Stats -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 print:hidden">
         <div class="stat-card">
           <div class="text-2xl font-bold text-gray-800">{{ totalSeated }} / {{ totalCapacity }}</div>
           <div class="text-xs text-gray-500 mt-1">已安排人數 / 總座位</div>
@@ -36,13 +42,16 @@
       </div>
 
       <!-- Actions -->
-      <div class="flex gap-3 items-center flex-wrap">
+      <div class="flex gap-3 items-center flex-wrap print:hidden">
         <input v-model="searchQuery" placeholder="搜尋姓名，找出所在桌" class="edit-input !w-auto flex-1 min-w-[180px] !py-2" />
         <button @click="exportCsv" class="border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm hover:bg-gray-100 whitespace-nowrap transition">
           匯出 Excel
         </button>
+        <button @click="exportPdf" class="border border-gray-300 text-gray-700 rounded-lg px-4 py-2 text-sm hover:bg-gray-100 whitespace-nowrap transition">
+          匯出 PDF
+        </button>
       </div>
-      <p v-if="searchQuery.trim()" class="text-xs text-gray-500 -mt-3">
+      <p v-if="searchQuery.trim()" class="text-xs text-gray-500 -mt-3 print:hidden">
         <template v-if="searchMatchTables.size">
           符合：{{ [...searchMatchTables].sort((a, b) => a - b).map(tableName).join('、') }}
         </template>
@@ -50,7 +59,7 @@
       </p>
 
       <!-- Side filter & stats -->
-      <div class="flex flex-wrap items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2 print:hidden">
         <div class="inline-flex rounded-lg border border-gray-300 overflow-hidden text-sm bg-white">
           <button
             v-for="o in SIDE_VIEWS"
@@ -71,10 +80,10 @@
         >{{ autoSideLoading ? '標示中...' : `依賓客自動標示（${autoSideCandidates.length} 桌）` }}</button>
       </div>
 
-      <div class="grid md:grid-cols-5 gap-5 items-start">
+      <div class="grid md:grid-cols-5 gap-5 items-start print:block">
         <!-- Floor plan -->
-        <div class="md:col-span-3 bg-white rounded-xl shadow-sm p-3 md:sticky md:top-20">
-          <svg :viewBox="FLOOR_VIEWBOX" class="w-full h-auto max-h-[78vh] select-none" role="img" aria-label="草悟廳座位圖">
+        <div class="md:col-span-3 bg-white rounded-xl shadow-sm p-3 md:sticky md:top-20 print:shadow-none print:p-0 print:static print-map">
+          <svg :viewBox="FLOOR_VIEWBOX" class="w-full h-auto max-h-[78vh] select-none print:max-h-[225mm]" role="img" aria-label="草悟廳座位圖">
             <!-- Walls -->
             <g fill="none" stroke="#B03A2E" stroke-width="6" stroke-linecap="square">
               <path d="M585,225 L950,225 M585,225 L585,540 Q585,590 535,590 L412,590 Q390,590 390,612 L390,1272 L425,1272" />
@@ -145,7 +154,7 @@
         </div>
 
         <!-- Side panel -->
-        <div ref="panelRef" class="md:col-span-2 space-y-4 scroll-mt-20">
+        <div ref="panelRef" class="md:col-span-2 space-y-4 scroll-mt-20 print:hidden">
           <!-- Selected table -->
           <div v-if="selectedTable !== null" class="bg-white rounded-xl shadow-sm p-4 space-y-4">
             <div class="flex items-start justify-between gap-2">
@@ -330,6 +339,29 @@
             </ul>
             <p v-if="rsvpError" class="text-red-500 text-xs">{{ rsvpError }}</p>
           </div>
+        </div>
+      </div>
+
+      <!-- Print: table lists -->
+      <div class="hidden print:block print-list">
+        <div
+          v-for="t in printTables"
+          :key="t.no"
+          class="print-card"
+          :style="{ borderColor: sideOf(t.no) ? SIDE_META[sideKey(t.no)].color : '#9CA3AF' }"
+        >
+          <div class="print-card-head">
+            <span class="print-card-name">{{ tableName(t.no) }}</span>
+            <span v-if="sideOf(t.no)" class="print-card-side" :style="{ color: SIDE_META[sideKey(t.no)].color }">{{ SIDE_META[sideKey(t.no)].label }}</span>
+            <span class="print-card-count">{{ seatedAt(t.no) }}/{{ capacityOf(t.no) }} 人</span>
+          </div>
+          <ul v-if="guestsAt(t.no).length" class="print-guests">
+            <li v-for="g in guestsAt(t.no)" :key="g.id">
+              <span>{{ g.name }}</span><span class="print-x">×{{ g.count }}</span>
+            </li>
+          </ul>
+          <p v-else class="print-empty">尚未安排</p>
+          <div class="print-note">備註</div>
         </div>
       </div>
     </div>
@@ -765,6 +797,40 @@ function handleLogout() {
   router.push('/admin/login')
 }
 
+const printTables = computed(() => [...TABLE_LAYOUT].sort((a, b) => a.no - b.no))
+
+function todayParts() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Taipei',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  return { y: get('year'), m: get('month'), d: get('day') }
+}
+const printDate = computed(() => {
+  const { y, m, d } = todayParts()
+  return `${y}/${m}/${d}`
+})
+
+/** 以瀏覽器列印輸出 PDF：先清除選取、搜尋與篩選，讓座位圖完整呈現 */
+async function exportPdf() {
+  selectedTable.value = null
+  searchQuery.value = ''
+  sideView.value = 'all'
+  await nextTick()
+  const { y, m, d } = todayParts()
+  const originalTitle = document.title
+  document.title = `座位表_${y}${m}${d}` // 作為 PDF 預設檔名
+  const restore = () => {
+    document.title = originalTitle
+    window.removeEventListener('afterprint', restore)
+  }
+  window.addEventListener('afterprint', restore)
+  window.print()
+}
+
 function csvEscape(val: any): string {
   if (val === null || val === undefined) return ''
   const str = String(val)
@@ -805,7 +871,103 @@ function exportCsv() {
 }
 </script>
 
+<style>
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
+</style>
+
 <style scoped>
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-title h1 {
+    font-size: 22pt;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 2mm;
+  }
+  .print-title p {
+    font-size: 11pt;
+    text-align: center;
+    color: #4b5563;
+    margin: 0 0 4mm;
+  }
+  .print-map {
+    break-after: page;
+  }
+  .print-list {
+    columns: 2;
+    column-gap: 6mm;
+  }
+  .print-card {
+    break-inside: avoid;
+    border: 2.5px solid;
+    border-radius: 3mm;
+    padding: 3mm 4mm;
+    margin-bottom: 5mm;
+  }
+  .print-card-head {
+    display: flex;
+    align-items: baseline;
+    gap: 3mm;
+    border-bottom: 1px solid #d1d5db;
+    padding-bottom: 1.5mm;
+    margin-bottom: 2mm;
+  }
+  .print-card-name {
+    font-size: 17pt;
+    font-weight: 700;
+    color: #111827;
+  }
+  .print-card-side {
+    font-size: 12pt;
+    font-weight: 700;
+  }
+  .print-card-count {
+    margin-left: auto;
+    font-size: 13pt;
+    color: #374151;
+    white-space: nowrap;
+  }
+  .print-guests {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .print-guests li {
+    display: flex;
+    justify-content: space-between;
+    gap: 3mm;
+    font-size: 15pt;
+    line-height: 1.55;
+    color: #111827;
+  }
+  .print-x {
+    white-space: nowrap;
+    color: #374151;
+  }
+  .print-empty {
+    font-size: 13pt;
+    color: #9ca3af;
+    margin: 1mm 0;
+  }
+  .print-note {
+    margin-top: 2.5mm;
+    border: 1px solid #9ca3af;
+    border-radius: 1.5mm;
+    min-height: 15mm;
+    padding: 1mm 2mm;
+    font-size: 10pt;
+    color: #6b7280;
+  }
+}
+
 .nav-btn {
   @apply text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5 whitespace-nowrap;
 }
