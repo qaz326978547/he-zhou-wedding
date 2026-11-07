@@ -361,7 +361,12 @@
             </li>
           </ul>
           <p v-else class="print-empty">尚未安排</p>
-          <div class="print-note">備註</div>
+          <div class="print-note">
+            <div>備註</div>
+            <div v-if="highchairsAt(t.no).total" class="print-note-chair">
+              兒童座椅 {{ highchairsAt(t.no).total }} 張（{{ highchairsAt(t.no).detail }}）
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -483,6 +488,17 @@ const SIDE_VIEWS: { value: 'all' | Side; label: string }[] = [
 ]
 
 const rsvpById = computed(() => new Map(rsvpList.value.map((r) => [r.id, r])))
+
+/** 該桌兒童座椅數（依座位連結的 RSVP 兒童椅數加總），供 PDF 備註欄使用 */
+function highchairsAt(no: number) {
+  const items = guestsAt(no)
+    .map((g) => ({ name: g.name, n: g.rsvpId ? Number(rsvpById.value.get(g.rsvpId)?.highchairCount) || 0 : 0 }))
+    .filter((x) => x.n > 0)
+  return {
+    total: items.reduce((s, x) => s + x.n, 0),
+    detail: items.map((x) => `${x.name} ${x.n}`).join('、'),
+  }
+}
 
 function sideOf(no: number): Side | null {
   return sides.value[no] ?? null
@@ -965,6 +981,12 @@ function exportCsv() {
     padding: 1mm 2mm;
     font-size: 10pt;
     color: #6b7280;
+  }
+  .print-note-chair {
+    margin-top: 1mm;
+    font-size: 13pt;
+    font-weight: 700;
+    color: #111827;
   }
 }
 
